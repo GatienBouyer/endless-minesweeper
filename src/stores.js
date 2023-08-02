@@ -1,19 +1,11 @@
-/**
- * @param {number} size
- * @returns {number[][]}
- */
-function createGrid(size) { // TODO make it a class (object) with .get(x,y) et .first_reveal:boolean
-	return Array.from(new Array(size), () => new Array(size));
-}
-
-/**
- * @param {number[][]} grid
- * @param {number} x 
- * @param {number} y
- */
-export function read(grid, x, y) {
-	return grid[x][y];
-}
+// values: [[0 - 8]]
+const MINE = 9;
+const NOT_A_MINE = 10;
+const MINE_HIDDEN = 11;
+const FLAG_NOT_A_MINE = 12;
+const FLAG_MINE_HIDDEN = 13;
+const FLAG_UNDEFINED = 14;
+// UNEXPLORED: undefined
 
 /**
  * @param {number} cell_value
@@ -37,14 +29,53 @@ export function is_mine(cell_value) {
 	return cell_value == MINE;
 }
 
-// values: [[0 - 8]]
-const MINE = 9;
-const NOT_A_MINE = 10;
-const MINE_HIDDEN = 11;
-const FLAG_NOT_A_MINE = 12;
-const FLAG_MINE_HIDDEN = 13;
-const FLAG_UNDEFINED = 14;
-// UNEXPLORED: undefined
+/**
+ * @param {number} size
+ * @returns {number[][]}
+ */
+function _createGrid(size) { // TODO make it a class (object) with .get(x,y) et .first_reveal:boolean
+	return Array.from(new Array(size), () => new Array(size));
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {number} x 
+ * @param {number} y
+ */
+export function read(grid, x, y) {
+	return grid[x][y];
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {number} x 
+ * @param {number} y
+ * @param {number} value 
+ */
+function _set(grid, x, y, value) {
+	grid[x][y] =  value;
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {number} x 
+ * @param {number} y
+ */
+function _unset(grid, x, y) {
+	delete grid[x][y];
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {(value: number, x: number, y: number) => void} callbackfn
+ */
+function _forEachCell(grid, callbackfn) {
+	grid.forEach((column, x) => {
+		column.forEach((value, y) => {
+			callbackfn(value, x, y);
+		})
+	});
+}
 
 /**
  * @param {number[][]} grid
@@ -52,22 +83,23 @@ const FLAG_UNDEFINED = 14;
  * @param {number} y
  */
 function toggleFlag(grid, x, y) {
-	if (grid[x][y] == FLAG_UNDEFINED) {
-		delete grid[x][y];
-	} else if (grid[x][y] == FLAG_MINE_HIDDEN) {
-		grid[x][y] = MINE_HIDDEN;
-	} else if (grid[x][y] == FLAG_NOT_A_MINE) {
-		grid[x][y] = NOT_A_MINE;
-	} else if (grid[x][y] == undefined) {
-		grid[x][y] = FLAG_UNDEFINED;
-	} else if (grid[x][y] == MINE_HIDDEN) {
-		grid[x][y] = FLAG_MINE_HIDDEN;
-	} else if (grid[x][y] == NOT_A_MINE) {
-		grid[x][y] = FLAG_NOT_A_MINE;
+	const value = read(grid, x, y);
+	if (value == FLAG_UNDEFINED) {
+		_unset(grid, x, y);
+	} else if (value == FLAG_MINE_HIDDEN) {
+		_set(grid, x, y, MINE_HIDDEN);
+	} else if (value == FLAG_NOT_A_MINE) {
+		_set(grid, x, y, NOT_A_MINE);
+	} else if (value == undefined) {
+		_set(grid, x, y, FLAG_UNDEFINED);
+	} else if (value == MINE_HIDDEN) {
+		_set(grid, x, y, FLAG_MINE_HIDDEN);
+	} else if (value == NOT_A_MINE) {
+		_set(grid, x, y, FLAG_NOT_A_MINE);
 	}
 }
 
-function setMine() {
+function _setMine() {
 	return (Math.random() < get(difficulty)) ? MINE_HIDDEN : NOT_A_MINE;
 }
 
@@ -85,37 +117,49 @@ const NEIGHBOORS = [
 
 /**
  * @param {number[][]} grid
- * @param {number} x 
+ * @param {number} x
  * @param {number} y
+ * @param {(arg0: number[][], arg1: number, arg2: number) => void} f
  */
-function _revealNumber(grid, x, y) {
-	let count = 0;
+function _forNeighboors(grid, x, y, f) {
 	NEIGHBOORS.forEach(delta => {
 		const nx = x + delta[0]; const ny = y + delta[1];
 		if (!(0 <= nx && nx < grid.length && 0 <= ny && ny < grid.length)) {
 			return;
 		}
-		let nvalue = grid[nx][ny];
+		f(grid, nx, ny);
+	})
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {number} x 
+ * @param {number} y
+ */
+function _revealNumber(grid, x, y) {
+	let count = 0;
+	_forNeighboors(grid, x, y, (grid, nx, ny) => {
+		const nvalue = read(grid, nx, ny);
 		if (nvalue == undefined) {
-			nvalue = setMine();
-			grid[nx][ny] = nvalue;
+			const new_value = _setMine();
+			_set(grid, nx, ny, new_value);
+			if (new_value == MINE_HIDDEN) {
+				count += 1;
+			}
 		} else if (nvalue == FLAG_UNDEFINED) {
-			nvalue = setMine();
-			grid[nx][ny] = -nvalue;
-		}
-		if (nvalue == MINE_HIDDEN || nvalue == FLAG_MINE_HIDDEN || nvalue == MINE) {
+			if (_setMine() == MINE_HIDDEN) {
+				_set(grid, nx, ny, FLAG_MINE_HIDDEN);
+				count += 1;
+			} else {
+				_set(grid, nx, ny, FLAG_NOT_A_MINE);
+			}
+		} else if (nvalue == MINE_HIDDEN || nvalue == FLAG_MINE_HIDDEN || nvalue == MINE) {
 			count += 1;
 		}
-	})
-	grid[x][y] = count;
+	});
+	_set(grid, x, y, count);
 	if (count == 0) {
-		NEIGHBOORS.forEach(delta => {
-			const nx = x + delta[0]; const ny = y + delta[1];
-			if (!(0 <= nx && nx < grid.length && 0 <= ny && ny < grid.length)) {
-				return;
-			}
-			revealCell(grid, nx, ny);
-		})
+		_forNeighboors(grid, x, y, revealCell);
 	}
 }
 
@@ -125,9 +169,9 @@ function _revealNumber(grid, x, y) {
  * @param {number} y
  */
 function revealCell(grid, x, y) {
-	const value = grid[x][y]
+	const value = read(grid, x, y);
 	if (value == undefined) {
-		grid[x][y] = setMine(); // TODO first reveal => not a mine  &&  not fist reveal => a mine
+		_set(grid, x , y, _setMine()); // TODO first reveal => not a mine  &&  not fist reveal => a mine
 		revealCell(grid, x, y)
 	} else if (value == NOT_A_MINE) {
 		_revealNumber(grid, x, y);
@@ -143,8 +187,12 @@ function revealCell(grid, x, y) {
  */
 
 function _revealMine(grid, x, y) {
-	// TODO explode all mines
-	grid[x][y] = MINE;
+	_set(grid, x, y, MINE);
+	_forEachCell(grid, (value, x, y) => {
+		if (value == FLAG_MINE_HIDDEN || value == MINE_HIDDEN) {
+			_set(grid, x, y, MINE);
+		}
+	});
 }
 
 /**
@@ -154,7 +202,17 @@ function _revealMine(grid, x, y) {
  * @param {number} y
  */
 function autoReveal(grid, x, y) {
-	// TODO check if mines are all flagged, then reveal other cells
+	const value = read(grid, x, y);
+	let count = 0;
+	_forNeighboors(grid, x, y, (grid, nx, ny) => {
+		if (is_flag(read(grid, nx, ny))) {
+			count += 1;
+		}
+	});
+	if (count != value) {
+		return;
+	}
+	_forNeighboors(grid, x, y, revealCell);
 }
 
 /*****************************************************************************/
@@ -169,11 +227,11 @@ export const difficulty = writable(.20);
 
 function createGameStores() {
 	const size = writable(5);
-	const grid = writable(createGrid(get(size)));
+	const grid = writable(_createGrid(get(size)));
 	return {
 		size: {
 			subscribe: size.subscribe,
-			set: (/** @type {number} */ s) => { size.set(s); grid.set(createGrid(s)) },
+			set: (/** @type {number} */ s) => { size.set(s); grid.set(_createGrid(s)) },
 		},
 		grid: {
 			subscribe: grid.subscribe,
