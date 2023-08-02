@@ -19,7 +19,7 @@ export function read(grid, x, y) {
  * @param {number} cell_value
  */
 export function is_flag(cell_value) {
-	return cell_value < 0;
+	return cell_value >= FLAG_NOT_A_MINE;
 }
 
 
@@ -37,15 +37,14 @@ export function is_mine(cell_value) {
 	return cell_value == MINE;
 }
 
+// values: [[0 - 8]]
 const MINE = 9;
-const MINE_HIDDEN = 19;
-const NOT_A_MINE = 10
-const FLAG_UNDEFINED = -20
-// flagged are negative values /!\
-// -> -19 or -10 or -20
-// displayed values: [[0 - 8]] (also: mines and flags)
-// UNEXPLORED: undefined or FLAG_UNDEFINED
-// visually hidden: MINE_HIDDEN or NOT_A_MINE or UNEXPLORED
+const NOT_A_MINE = 10;
+const MINE_HIDDEN = 11;
+const FLAG_NOT_A_MINE = 12;
+const FLAG_MINE_HIDDEN = 13;
+const FLAG_UNDEFINED = 14;
+// UNEXPLORED: undefined
 
 /**
  * @param {number[][]} grid
@@ -55,10 +54,16 @@ const FLAG_UNDEFINED = -20
 function toggleFlag(grid, x, y) {
 	if (grid[x][y] == FLAG_UNDEFINED) {
 		delete grid[x][y];
+	} else if (grid[x][y] == FLAG_MINE_HIDDEN) {
+		grid[x][y] = MINE_HIDDEN;
+	} else if (grid[x][y] == FLAG_NOT_A_MINE) {
+		grid[x][y] = NOT_A_MINE;
 	} else if (grid[x][y] == undefined) {
 		grid[x][y] = FLAG_UNDEFINED;
-	} else {
-		grid[x][y] *= -1;
+	} else if (grid[x][y] == MINE_HIDDEN) {
+		grid[x][y] = FLAG_MINE_HIDDEN;
+	} else if (grid[x][y] == NOT_A_MINE) {
+		grid[x][y] = FLAG_NOT_A_MINE;
 	}
 }
 
@@ -83,40 +88,63 @@ const NEIGHBOORS = [
  * @param {number} x 
  * @param {number} y
  */
-function revealCell(grid, x, y) {
-	let value = grid[x][y]
-	if (value == undefined) {
-		value = setMine(); // TODO first reveal => not a mine  &&  not fist reveal => a mine
-		grid[x][y] = value;
-	}
-	if (value == NOT_A_MINE) {
-		let count = 0;
+function _revealNumber(grid, x, y) {
+	let count = 0;
+	NEIGHBOORS.forEach(delta => {
+		const nx = x + delta[0]; const ny = y + delta[1];
+		if (!(0 <= nx && nx < grid.length && 0 <= ny && ny < grid.length)) {
+			return;
+		}
+		let nvalue = grid[nx][ny];
+		if (nvalue == undefined) {
+			nvalue = setMine();
+			grid[nx][ny] = nvalue;
+		} else if (nvalue == FLAG_UNDEFINED) {
+			nvalue = setMine();
+			grid[nx][ny] = -nvalue;
+		}
+		if (nvalue == MINE_HIDDEN || nvalue == FLAG_MINE_HIDDEN || nvalue == MINE) {
+			count += 1;
+		}
+	})
+	grid[x][y] = count;
+	if (count == 0) {
 		NEIGHBOORS.forEach(delta => {
 			const nx = x + delta[0]; const ny = y + delta[1];
 			if (!(0 <= nx && nx < grid.length && 0 <= ny && ny < grid.length)) {
 				return;
 			}
-			let nvalue = grid[nx][ny];
-			if (nvalue == undefined) {
-				nvalue = setMine();
-				grid[nx][ny] = nvalue;
-			} else if (nvalue == FLAG_UNDEFINED) {
-				nvalue = setMine();
-				grid[nx][ny] = -nvalue;
-			}
-			if (nvalue == MINE_HIDDEN || nvalue == -MINE_HIDDEN || nvalue == MINE) {
-				count += 1;
-			}
+			revealCell(grid, nx, ny);
 		})
-		grid[x][y] = count;
-		if (count == 0) {
-			// TODO
-		}
 	}
-	if (value == MINE_HIDDEN) {
-		// TODO explode all mines
-		grid[x][y] = MINE;
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {number} x 
+ * @param {number} y
+ */
+function revealCell(grid, x, y) {
+	const value = grid[x][y]
+	if (value == undefined) {
+		grid[x][y] = setMine(); // TODO first reveal => not a mine  &&  not fist reveal => a mine
+		revealCell(grid, x, y)
+	} else if (value == NOT_A_MINE) {
+		_revealNumber(grid, x, y);
+	} else if (value == MINE_HIDDEN) {
+		_revealMine(grid, x, y);
 	}
+}
+
+/**
+ * @param {number[][]} grid
+ * @param {number} x 
+ * @param {number} y
+ */
+
+function _revealMine(grid, x, y) {
+	// TODO explode all mines
+	grid[x][y] = MINE;
 }
 
 /**
@@ -137,7 +165,7 @@ import { get, writable } from 'svelte/store';
 /**
  * Between 0 and 1. 0 easy (no mines). 1 impossible (all mines).
  */
-export const difficulty = writable(.25);
+export const difficulty = writable(.20);
 
 function createGameStores() {
 	const size = writable(5);
