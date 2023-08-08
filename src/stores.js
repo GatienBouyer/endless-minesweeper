@@ -29,11 +29,13 @@ export function is_mine(cell_value) {
 	return cell_value == MINE;
 }
 
+// TODO make a Grid class (around number[][] first ;) )
+// TODO make a Game class (with Grid and first_reveal)
 /**
  * @param {number} size
  * @returns {number[][]}
  */
-function _createGrid(size) { // TODO make it a class (object) with .get(x,y) et .first_reveal:boolean
+function _createGrid(size) {
 	return Array.from(new Array(size), () => new Array(size));
 }
 
@@ -68,6 +70,7 @@ function _unset(grid, x, y) {
 /**
  * @param {number[][]} grid
  * @param {(value: number, x: number, y: number) => void} callbackfn
+ * @returns {void} calls callback on elements
  */
 function _forEachCell(grid, callbackfn) {
 	grid.forEach((column, x) => {
@@ -81,6 +84,7 @@ function _forEachCell(grid, callbackfn) {
  * @param {number[][]} grid
  * @param {number} x 
  * @param {number} y
+ * @returns {void} mutate the grid
  */
 function toggleFlag(grid, x, y) {
 	const value = read(grid, x, y);
@@ -99,6 +103,9 @@ function toggleFlag(grid, x, y) {
 	}
 }
 
+/**
+ * @returns {MINE_HIDDEN | NOT_A_MINE}
+ */
 function _setMine() {
 	return (Math.random() < get(difficulty)) ? MINE_HIDDEN : NOT_A_MINE;
 }
@@ -120,6 +127,7 @@ const NEIGHBOORS = [
  * @param {number} x
  * @param {number} y
  * @param {(arg0: number[][], arg1: number, arg2: number) => void} f
+ * @returns {void} calls f on neighboors
  */
 function _forNeighboors(grid, x, y, f) {
 	NEIGHBOORS.forEach(delta => {
@@ -135,6 +143,7 @@ function _forNeighboors(grid, x, y, f) {
  * @param {number[][]} grid
  * @param {number} x 
  * @param {number} y
+ * @returns {void} mutate the grid
  */
 function _revealNumber(grid, x, y) {
 	let count = 0;
@@ -167,6 +176,7 @@ function _revealNumber(grid, x, y) {
  * @param {number[][]} grid
  * @param {number} x 
  * @param {number} y
+ * @returns {void} mutate the grid
  */
 function revealCell(grid, x, y) {
 	const value = read(grid, x, y);
@@ -184,6 +194,7 @@ function revealCell(grid, x, y) {
  * @param {number[][]} grid
  * @param {number} x 
  * @param {number} y
+ * @returns {void} mutate the grid
  */
 
 function _revealMine(grid, x, y) {
@@ -200,6 +211,7 @@ function _revealMine(grid, x, y) {
  * @param {number[][]} grid
  * @param {number} x 
  * @param {number} y
+ * @returns {void} mutate the grid
  */
 function autoReveal(grid, x, y) {
 	const value = read(grid, x, y);
@@ -213,6 +225,26 @@ function autoReveal(grid, x, y) {
 		return;
 	}
 	_forNeighboors(grid, x, y, revealCell);
+}
+
+/**
+ * @param {number[][]} grid
+ * @returns {number}
+ */
+export function getFlagCount(grid) {
+	let count = 0;
+	_forEachCell(grid, (elt) => {count += is_flag(elt)});
+	return count;
+}
+
+/**
+ * @param {number[][]} grid
+ * @returns {number}
+ */
+export function getCellRevealedCount(grid) {
+	let count = 0;
+	_forEachCell(grid, (elt) => {count += is_digit(elt)});
+	return count;
 }
 
 /*****************************************************************************/
@@ -239,9 +271,9 @@ function createGameStores() {
 			revealCell: (/** @type {number} */ x, /** @type {number} */ y) => grid.update((g) => { revealCell(g, x, y); return g }),
 			toggleFlag: (/** @type {number} */ x, /** @type {number} */ y) => grid.update((g) => { toggleFlag(g, x, y); return g }),
 			autoReveal: (/** @type {number} */ x, /** @type {number} */ y) => grid.update((g) => { autoReveal(g, x, y); return g }),
-			get: (/** @type {number} */ x, /** @type {number} */ y) => read(get(grid), x, y),
 		},
 	}
 }
 
 export const { size, grid } = createGameStores();
+

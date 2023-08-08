@@ -1,39 +1,22 @@
 <script>
-	import { onMount } from "svelte";
-	import Cell from "./Cell.svelte";
-	import { size } from "./stores.js"
-
-	/**
-     * @type {HTMLTableElement}
-     */
-	let grid;
-
-	onMount(() => {
-		for (let i = 0; i < $size; i++) {
-			const row = document.createElement("tr");
-			grid.appendChild(row);
-			for (let j = 0; j < $size; j++) {
-				new Cell({
-					target: row,
-					props: {
-						x: j,
-						y: i,
-					}
-				});
-			}
-		}
-	});
+	import Grid from "./Grid.svelte";
+	import { grid, getFlagCount, getCellRevealedCount } from "./stores.js";
 </script>
 
-<table bind:this={grid} style:--columnsCount={$size} />
+<Grid />
+
+<div id="stats">
+	<span><span>{getFlagCount($grid)}</span> mines marked</span>
+	<span><span>{getCellRevealedCount($grid)}</span> cells cleared</span>
+</div>
 
 <style>
-	table {
-		display: grid;
-		grid-template-columns: repeat(var(--columnsCount, 1), auto);
+	#stats {
 		position: absolute;
-		top: 50%;
+		bottom: 3rem;
 		left: 50%;
-		translate: -50% -50%;
+		translate: -50%;
+		display: flex;
+		flex-direction: column;
 	}
 </style>
