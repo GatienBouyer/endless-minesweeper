@@ -60,7 +60,7 @@ class Grid {
 	}
 
 	/**
-	 * @param {number} x 
+	 * @param {number} x
 	 * @param {number} y
 	 * @returns {number}
 	 */
@@ -120,7 +120,7 @@ class Grid {
 
 /**
  * @param {Grid} grid
- * @param {number} x 
+ * @param {number} x
  * @param {number} y
  * @returns {void} mutate the grid
  */
@@ -153,13 +153,13 @@ function _setMine() {
 
 /**
  * @param {Grid} grid
- * @param {number} x 
+ * @param {number} x
  * @param {number} y
  * @returns {void} mutate the grid
  */
 function _revealNumber(grid, x, y) {
 	let count = 0;
-	grid.forNeighboors(x,y, (value, nx, ny) => {
+	grid.forNeighboors(x, y, (value, nx, ny) => {
 		if (value == undefined) {
 			const new_value = _setMine();
 			grid.set(nx, ny, new_value);
@@ -185,7 +185,7 @@ function _revealNumber(grid, x, y) {
 
 /**
  * @param {Grid} grid
- * @param {number} x 
+ * @param {number} x
  * @param {number} y
  * @returns {void} mutate the grid
  */

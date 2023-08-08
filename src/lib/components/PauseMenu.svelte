@@ -1,5 +1,5 @@
 <script>
-	import { size, difficulty } from "./stores.js"
+	import { size, difficulty } from "$lib/stores.js";
 </script>
 
 <div>
@@ -11,8 +11,20 @@
 	</label>
 	<label
 		>Difficulty:
-		<input type="number" bind:value={$difficulty} min="0" max="1" step=".01" />
-		<input type="range" bind:value={$difficulty} min="0" max="1" step=".01"/>
+		<input
+			type="number"
+			bind:value={$difficulty}
+			min="0"
+			max="1"
+			step=".01"
+		/>
+		<input
+			type="range"
+			bind:value={$difficulty}
+			min="0"
+			max="1"
+			step=".01"
+		/>
 	</label>
 </div>
 

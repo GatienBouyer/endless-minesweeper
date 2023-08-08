@@ -1,6 +1,6 @@
 <script>
-	import Grid from "./Grid.svelte";
-	import { grid, getFlagCount, getCellRevealedCount } from "./stores.js";
+	import Grid from "$lib/components/Grid.svelte";
+	import { grid, getFlagCount, getCellRevealedCount } from "$lib/stores.js";
 </script>
 
 <Grid />

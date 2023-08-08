@@ -1,6 +1,6 @@
 <script>
-	import PauseMenu from "../PauseMenu.svelte";
-	import Game from "../Game.svelte";
+	import PauseMenu from "$lib/components/PauseMenu.svelte";
+	import Game from "$lib/components/Game.svelte";
 
 	let paused = false;
 </script>
@@ -13,9 +13,9 @@
 </div>
 
 {#if paused}
-	<PauseMenu/>
+	<PauseMenu />
 {:else}
-	<Game/>
+	<Game />
 {/if}
 
 <footer>

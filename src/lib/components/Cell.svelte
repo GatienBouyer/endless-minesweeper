@@ -1,5 +1,5 @@
 <script>
-	import { grid, is_mine, is_flag, is_digit } from "./stores.js";
+	import { grid, is_mine, is_flag, is_digit } from "$lib/stores.js";
 	/**
 	 * @type {number}
 	 */

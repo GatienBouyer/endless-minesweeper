@@ -1,11 +1,11 @@
 <script>
 	import { onMount } from "svelte";
-	import Cell from "./Cell.svelte";
-	import { size } from "./stores.js"
+	import Cell from "$lib/components/Cell.svelte";
+	import { size } from "$lib/stores.js";
 
 	/**
-     * @type {HTMLTableElement}
-     */
+	 * @type {HTMLTableElement}
+	 */
 	let grid;
 
 	onMount(() => {
@@ -18,7 +18,7 @@
 					props: {
 						x: j,
 						y: i,
-					}
+					},
 				});
 			}
 		}
