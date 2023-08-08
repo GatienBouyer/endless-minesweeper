@@ -29,87 +29,6 @@ export function is_mine(cell_value) {
 	return cell_value == MINE;
 }
 
-// TODO make a Grid class (around number[][] first ;) )
-// TODO make a Game class (with Grid and first_reveal)
-/**
- * @param {number} size
- * @returns {number[][]}
- */
-function _createGrid(size) {
-	return Array.from(new Array(size), () => new Array(size));
-}
-
-/**
- * @param {number[][]} grid
- * @param {number} x 
- * @param {number} y
- */
-export function read(grid, x, y) {
-	return grid[x][y];
-}
-
-/**
- * @param {number[][]} grid
- * @param {number} x 
- * @param {number} y
- * @param {number} value 
- */
-function _set(grid, x, y, value) {
-	grid[x][y] =  value;
-}
-
-/**
- * @param {number[][]} grid
- * @param {number} x 
- * @param {number} y
- */
-function _unset(grid, x, y) {
-	delete grid[x][y];
-}
-
-/**
- * @param {number[][]} grid
- * @param {(value: number, x: number, y: number) => void} callbackfn
- * @returns {void} calls callback on elements
- */
-function _forEachCell(grid, callbackfn) {
-	grid.forEach((column, x) => {
-		column.forEach((value, y) => {
-			callbackfn(value, x, y);
-		})
-	});
-}
-
-/**
- * @param {number[][]} grid
- * @param {number} x 
- * @param {number} y
- * @returns {void} mutate the grid
- */
-function toggleFlag(grid, x, y) {
-	const value = read(grid, x, y);
-	if (value == FLAG_UNDEFINED) {
-		_unset(grid, x, y);
-	} else if (value == FLAG_MINE_HIDDEN) {
-		_set(grid, x, y, MINE_HIDDEN);
-	} else if (value == FLAG_NOT_A_MINE) {
-		_set(grid, x, y, NOT_A_MINE);
-	} else if (value == undefined) {
-		_set(grid, x, y, FLAG_UNDEFINED);
-	} else if (value == MINE_HIDDEN) {
-		_set(grid, x, y, FLAG_MINE_HIDDEN);
-	} else if (value == NOT_A_MINE) {
-		_set(grid, x, y, FLAG_NOT_A_MINE);
-	}
-}
-
-/**
- * @returns {MINE_HIDDEN | NOT_A_MINE}
- */
-function _setMine() {
-	return (Math.random() < get(difficulty)) ? MINE_HIDDEN : NOT_A_MINE;
-}
-
 
 const NEIGHBOORS = [
 	[-1, -1],
@@ -122,66 +41,158 @@ const NEIGHBOORS = [
 	[1, 1],
 ]
 
+class Grid {
+	/**
+	 * @type {number[][]}
+	 */
+	#array;
+	/**
+	 * @type {number}
+	 */
+	size;
+
+	/**
+	 * @param {number} size
+	 */
+	constructor(size) {
+		this.size = size;
+		this.#array = Array.from(new Array(size), () => new Array(size));
+	}
+
+	/**
+	 * @param {number} x 
+	 * @param {number} y
+	 * @returns {number}
+	 */
+	get(x, y) {
+		return this.#array[x][y];
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {number} value
+	 * @returns {void}
+	 */
+	set(x, y, value) {
+		this.#array[x][y] = value;
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {void}
+	 */
+	unset(x, y) {
+		delete this.#array[x][y];
+	}
+
+	/**
+	 * @param {(value: number, x: number, y: number) => void} callbackfn
+	 * @returns {void}
+	 */
+	forEachCell(callbackfn) {
+		this.#array.forEach((column, x) => {
+			column.forEach((value, y) => {
+				callbackfn(value, x, y);
+			})
+		});
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @param {(value: number, x: number, y: number) => void} callbackfn
+	 * @returns {void}
+	 */
+	forNeighboors(x, y, callbackfn) {
+		NEIGHBOORS.forEach(delta => {
+			const nx = x + delta[0]; const ny = y + delta[1];
+			if (!(0 <= nx && nx < this.size && 0 <= ny && ny < this.size)) {
+				return;
+			}
+			callbackfn(this.#array[nx][ny], nx, ny);
+		})
+	}
+}
+
+// TODO make a Game class (with Grid, flag_count, revealed_count, and is_first_move)
+
 /**
- * @param {number[][]} grid
- * @param {number} x
+ * @param {Grid} grid
+ * @param {number} x 
  * @param {number} y
- * @param {(arg0: number[][], arg1: number, arg2: number) => void} f
- * @returns {void} calls f on neighboors
+ * @returns {void} mutate the grid
  */
-function _forNeighboors(grid, x, y, f) {
-	NEIGHBOORS.forEach(delta => {
-		const nx = x + delta[0]; const ny = y + delta[1];
-		if (!(0 <= nx && nx < grid.length && 0 <= ny && ny < grid.length)) {
-			return;
-		}
-		f(grid, nx, ny);
-	})
+function toggleFlag(grid, x, y) {
+	const value = grid.get(x, y);
+	if (value == FLAG_UNDEFINED) {
+		grid.unset(x, y);
+	} else if (value == FLAG_MINE_HIDDEN) {
+		grid.set(x, y, MINE_HIDDEN);
+	} else if (value == FLAG_NOT_A_MINE) {
+		grid.set(x, y, NOT_A_MINE);
+	} else if (value == undefined) {
+		grid.set(x, y, FLAG_UNDEFINED);
+	} else if (value == MINE_HIDDEN) {
+		grid.set(x, y, FLAG_MINE_HIDDEN);
+	} else if (value == NOT_A_MINE) {
+		grid.set(x, y, FLAG_NOT_A_MINE);
+	}
 }
 
 /**
- * @param {number[][]} grid
+ * @returns {MINE_HIDDEN | NOT_A_MINE}
+ */
+function _setMine() {
+	return (Math.random() < get(difficulty)) ? MINE_HIDDEN : NOT_A_MINE;
+}
+
+
+
+
+/**
+ * @param {Grid} grid
  * @param {number} x 
  * @param {number} y
  * @returns {void} mutate the grid
  */
 function _revealNumber(grid, x, y) {
 	let count = 0;
-	_forNeighboors(grid, x, y, (grid, nx, ny) => {
-		const nvalue = read(grid, nx, ny);
-		if (nvalue == undefined) {
+	grid.forNeighboors(x,y, (value, nx, ny) => {
+		if (value == undefined) {
 			const new_value = _setMine();
-			_set(grid, nx, ny, new_value);
+			grid.set(nx, ny, new_value);
 			if (new_value == MINE_HIDDEN) {
 				count += 1;
 			}
-		} else if (nvalue == FLAG_UNDEFINED) {
+		} else if (value == FLAG_UNDEFINED) {
 			if (_setMine() == MINE_HIDDEN) {
-				_set(grid, nx, ny, FLAG_MINE_HIDDEN);
+				grid.set(nx, ny, FLAG_MINE_HIDDEN);
 				count += 1;
 			} else {
-				_set(grid, nx, ny, FLAG_NOT_A_MINE);
+				grid.set(nx, ny, FLAG_NOT_A_MINE);
 			}
-		} else if (nvalue == MINE_HIDDEN || nvalue == FLAG_MINE_HIDDEN || nvalue == MINE) {
+		} else if (value == MINE_HIDDEN || value == FLAG_MINE_HIDDEN || value == MINE) {
 			count += 1;
 		}
 	});
-	_set(grid, x, y, count);
+	grid.set(x, y, count);
 	if (count == 0) {
-		_forNeighboors(grid, x, y, revealCell);
+		grid.forNeighboors(x, y, (_, nx, ny) => revealCell(grid, nx, ny));
 	}
 }
 
 /**
- * @param {number[][]} grid
+ * @param {Grid} grid
  * @param {number} x 
  * @param {number} y
  * @returns {void} mutate the grid
  */
 function revealCell(grid, x, y) {
-	const value = read(grid, x, y);
+	const value = grid.get(x, y);
 	if (value == undefined) {
-		_set(grid, x , y, _setMine()); // TODO first reveal => not a mine  &&  not fist reveal => a mine
+		grid.set(x, y, _setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
 		revealCell(grid, x, y)
 	} else if (value == NOT_A_MINE) {
 		_revealNumber(grid, x, y);
@@ -191,59 +202,57 @@ function revealCell(grid, x, y) {
 }
 
 /**
- * @param {number[][]} grid
+ * @param {Grid} grid
  * @param {number} x 
  * @param {number} y
  * @returns {void} mutate the grid
  */
 
 function _revealMine(grid, x, y) {
-	_set(grid, x, y, MINE);
-	_forEachCell(grid, (value, x, y) => {
+	grid.set(x, y, MINE);
+	grid.forEachCell((value, x, y) => {
 		if (value == FLAG_MINE_HIDDEN || value == MINE_HIDDEN) {
-			_set(grid, x, y, MINE);
+			grid.set(x, y, MINE);
 		}
 	});
 }
 
 /**
  * If cell revealed and all mine are flagged, reveal surroundings cells.
- * @param {number[][]} grid
+ * @param {Grid} grid
  * @param {number} x 
  * @param {number} y
  * @returns {void} mutate the grid
  */
 function autoReveal(grid, x, y) {
-	const value = read(grid, x, y);
+	const value = grid.get(x, y);
 	let count = 0;
-	_forNeighboors(grid, x, y, (grid, nx, ny) => {
-		if (is_flag(read(grid, nx, ny))) {
-			count += 1;
-		}
-	});
+	grid.forNeighboors(x, y, (value) => {
+		if (is_flag(value)) count += 1
+	})
 	if (count != value) {
 		return;
 	}
-	_forNeighboors(grid, x, y, revealCell);
+	grid.forNeighboors(x, y, (_, nx, ny) => revealCell(grid, nx, ny));
 }
 
 /**
- * @param {number[][]} grid
+ * @param {Grid} grid
  * @returns {number}
  */
 export function getFlagCount(grid) {
 	let count = 0;
-	_forEachCell(grid, (elt) => {count += is_flag(elt)});
+	grid.forEachCell((value) => count += is_flag(value));
 	return count;
 }
 
 /**
- * @param {number[][]} grid
+ * @param {Grid} grid
  * @returns {number}
  */
 export function getCellRevealedCount(grid) {
 	let count = 0;
-	_forEachCell(grid, (elt) => {count += is_digit(elt)});
+	grid.forEachCell((value) => count += is_digit(value));
 	return count;
 }
 
@@ -259,11 +268,11 @@ export const difficulty = writable(.20);
 
 function createGameStores() {
 	const size = writable(5);
-	const grid = writable(_createGrid(get(size)));
+	const grid = writable(new Grid(get(size)));
 	return {
 		size: {
 			subscribe: size.subscribe,
-			set: (/** @type {number} */ s) => { size.set(s); grid.set(_createGrid(s)) },
+			set: (/** @type {number} */ s) => { size.set(s); grid.set(new Grid(s)) },
 		},
 		grid: {
 			subscribe: grid.subscribe,
