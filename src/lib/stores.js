@@ -10,22 +10,24 @@ const FLAG_UNDEFINED = 14;
 // UNEXPLORED: undefined
 
 /**
- * @param {number} cell_value
+ * @param {number | undefined} cell_value
  */
 export function is_flag(cell_value) {
+	// @ts-ignore
 	return cell_value >= FLAG_NOT_A_MINE;
 }
 
 
 /**
- * @param {number} cell_value
+ * @param {number | undefined} cell_value
  */
 export function is_digit(cell_value) {
+	// @ts-ignore
 	return 0 <= cell_value && cell_value <= 8
 }
 
 /**
- * @param {number} cell_value
+ * @param {number | undefined} cell_value
  */
 export function is_mine(cell_value) {
 	return cell_value == MINE;
@@ -35,21 +37,29 @@ class Game {
 	/** @type {Grid} */
 	#grid
 
+	/**
+	 * Between 0 and 1. 0 easy (no mines). 1 impossible (all mines).
+	 * @type {number}
+	 */
+	difficulty
+
 	// TODO add attribut status = "initialized" | "started" | "ended"
 	// TODO add attribut flagCount
 	// TODO add attribut revealedCount
 
 	/**
 	 * @param {number} size
+	 * @param {number} difficulty
 	 */
-	constructor(size) {
+	constructor(size, difficulty) {
+		this.difficulty = difficulty;
 		this.#grid = new Grid(size);
 	}
 
 	/**
 	 * @param {number} x
 	 * @param {number} y
-	 * @returns {number}
+	 * @returns {number | undefined}
 	 */
 	get(x, y) {
 		return this.#grid.get(x, y);
@@ -78,6 +88,14 @@ class Game {
 	}
 
 	/**
+	 * @returns {MINE_HIDDEN | NOT_A_MINE}
+	 */
+	#setMine() {
+		console.log(this.difficulty)
+		return (Math.random() < this.difficulty) ? MINE_HIDDEN : NOT_A_MINE;
+	}
+
+	/**
 	 * @param {number} x
 	 * @param {number} y
 	 * @returns {void} mutate the grid
@@ -85,7 +103,7 @@ class Game {
 	revealCell(x, y) {
 		const value = this.#grid.get(x, y);
 		if (value == undefined) {
-			this.#grid.set(x, y, _setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
+			this.#grid.set(x, y, this.#setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
 			this.revealCell(x, y)
 		} else if (value == NOT_A_MINE) {
 			this.#setNumber(x, y);
@@ -103,13 +121,13 @@ class Game {
 		let count = 0;
 		this.#grid.forNeighboors(x, y, (value, nx, ny) => {
 			if (value == undefined) {
-				const new_value = _setMine();
+				const new_value = this.#setMine();
 				this.#grid.set(nx, ny, new_value);
 				if (new_value == MINE_HIDDEN) {
 					count += 1;
 				}
 			} else if (value == FLAG_UNDEFINED) {
-				if (_setMine() == MINE_HIDDEN) {
+				if (this.#setMine() == MINE_HIDDEN) {
 					this.#grid.set(nx, ny, FLAG_MINE_HIDDEN);
 					count += 1;
 				} else {
@@ -124,7 +142,6 @@ class Game {
 			this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 		}
 	}
-
 
 	/**
 	 * @param {number} x 
@@ -158,7 +175,6 @@ class Game {
 		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 	}
 
-
 	/**
 	 * @returns {number}
 	 */
@@ -178,31 +194,24 @@ class Game {
 	}
 }
 
-/**
- * @returns {MINE_HIDDEN | NOT_A_MINE}
- */
-function _setMine() {
-	// TODO place this function inside Game and without the difficulty store
-	return (Math.random() < get(difficulty)) ? MINE_HIDDEN : NOT_A_MINE;
-}
-
 /*****************************************************************************/
 /***************************   Svelte Stuff   ********************************/
 /*****************************************************************************/
 import { get, writable } from 'svelte/store';
 
-/**
- * Between 0 and 1. 0 easy (no mines). 1 impossible (all mines).
- */
-export const difficulty = writable(.20);
 
 function createGameStores() {
 	const size = writable(5);
-	const game = writable(new Game(get(size)));
+	const difficulty = writable(.2);
+	const game = writable(new Game(get(size), get(difficulty)));
 	return {
 		size: {
 			subscribe: size.subscribe,
-			set: (/** @type {number} */ s) => { size.set(s); game.set(new Game(s)) },
+			set: (/** @type {number} */ s) => { size.set(s); game.set(new Game(s, get(difficulty))); },
+		},
+		difficulty: {
+			subscribe: difficulty.subscribe,
+			set: (/** @type {number} */ d) => { difficulty.set(d); get(game).difficulty = d; }
 		},
 		game: {
 			subscribe: game.subscribe,
@@ -214,5 +223,5 @@ function createGameStores() {
 	}
 }
 
-export const { size, game } = createGameStores();
+export const { difficulty, game, size } = createGameStores();
 

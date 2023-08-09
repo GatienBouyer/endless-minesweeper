@@ -30,10 +30,10 @@ class Grid {
 	/**
 	 * @param {number} x
 	 * @param {number} y
-	 * @returns {number}
+	 * @returns {number | undefined}
 	 */
 	get(x, y) {
-		return this.#array[x][y];
+		return this.#array.at(x)?.at(y);
 	}
 
 	/**
