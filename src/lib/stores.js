@@ -20,8 +20,9 @@ export class Game {
 	difficulty
 
 	// TODO add attribut status = "initialized" | "started" | "ended"
-	// TODO add attribut flagCount
-	// TODO add attribut revealedCount
+
+	flagCount = 0;
+	revealCount = 0;
 
 	/**
 	 * @param {number} size
@@ -97,16 +98,22 @@ export class Game {
 	toggleFlag(x, y) {
 		const value = this.#grid.get(x, y);
 		if (value == FLAG_UNDEFINED) {
+			this.flagCount -= 1;
 			this.#grid.unset(x, y);
 		} else if (value == FLAG_MINE_HIDDEN) {
+			this.flagCount -= 1;
 			this.#grid.set(x, y, MINE_HIDDEN);
 		} else if (value == FLAG_NOT_A_MINE) {
+			this.flagCount -= 1;
 			this.#grid.set(x, y, NOT_A_MINE);
 		} else if (value == undefined) {
+			this.flagCount += 1;
 			this.#grid.set(x, y, FLAG_UNDEFINED);
 		} else if (value == MINE_HIDDEN) {
+			this.flagCount += 1;
 			this.#grid.set(x, y, FLAG_MINE_HIDDEN);
 		} else if (value == NOT_A_MINE) {
+			this.flagCount += 1;
 			this.#grid.set(x, y, FLAG_NOT_A_MINE);
 		}
 	}
@@ -161,6 +168,10 @@ export class Game {
 			}
 		});
 		this.#grid.set(x, y, count);
+		if (this.isFlag(x, y)) {
+			this.flagCount -= 1;
+		}
+		this.revealCount += 1;
 		if (count == 0) {
 			this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 		}
@@ -172,9 +183,15 @@ export class Game {
 	 * @returns {void} mutate the grid
 	 */
 	#revealMines(x, y) {
+		if (this.isFlag(x, y)) {
+			this.flagCount -= 1;
+		}
 		this.#grid.set(x, y, MINE);
 		this.#grid.forEachCell((value, x, y) => {
-			if (value == FLAG_MINE_HIDDEN || value == MINE_HIDDEN) {
+			if (value == FLAG_MINE_HIDDEN) {
+				this.flagCount -= 1;
+				this.#grid.set(x, y, MINE);
+			} else if (value == MINE_HIDDEN) {
 				this.#grid.set(x, y, MINE);
 			}
 		});
@@ -199,24 +216,6 @@ export class Game {
 			return;
 		}
 		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
-	}
-
-	/**
-	 * @returns {number}
-	 */
-	getFlagCount() {
-		let count = 0;
-		this.#grid.forEachCell((value) => count += Game.is_flag(value));
-		return count;
-	}
-
-	/**
-	 * @returns {number}
-	 */
-	getCellRevealedCount() {
-		let count = 0;
-		this.#grid.forEachCell((value) => count += Game.is_digit(value));
-		return count;
 	}
 }
 

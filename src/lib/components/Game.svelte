@@ -6,8 +6,8 @@
 <Grid />
 
 <div id="stats">
-	<span><span>{$game.getFlagCount()}</span> mines marked</span>
-	<span><span>{$game.getCellRevealedCount()}</span> cells cleared</span>
+	<span><span>{$game.flagCount}</span> mines marked</span>
+	<span><span>{$game.revealCount}</span> cells cleared</span>
 </div>
 
 <style>
