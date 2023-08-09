@@ -9,31 +9,7 @@ const FLAG_MINE_HIDDEN = 13;
 const FLAG_UNDEFINED = 14;
 // UNEXPLORED: undefined
 
-/**
- * @param {number | undefined} cell_value
- */
-export function is_flag(cell_value) {
-	// @ts-ignore
-	return cell_value >= FLAG_NOT_A_MINE;
-}
-
-
-/**
- * @param {number | undefined} cell_value
- */
-export function is_digit(cell_value) {
-	// @ts-ignore
-	return 0 <= cell_value && cell_value <= 8
-}
-
-/**
- * @param {number | undefined} cell_value
- */
-export function is_mine(cell_value) {
-	return cell_value == MINE;
-}
-
-class Game {
+export class Game {
 	/** @type {Grid} */
 	#grid
 
@@ -66,6 +42,54 @@ class Game {
 	}
 
 	/**
+	 * @param {number | undefined} cell_value
+	 */
+	static is_flag(cell_value) {
+		// @ts-ignore
+		return cell_value >= FLAG_NOT_A_MINE;
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	isFlag(x, y) {
+		return Game.is_flag(this.#grid.get(x, y));
+	}
+
+
+	/**
+	 * @param {number | undefined} cell_value
+	 */
+	static is_digit(cell_value) {
+		// @ts-ignore
+		return 0 <= cell_value && cell_value <= 8;
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	isDigit(x, y) {
+		return Game.is_digit(this.#grid.get(x, y));
+	}
+
+	/**
+	 * @param {number | undefined} cell_value
+	 */
+	static is_mine(cell_value) {
+		return cell_value == MINE;
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	isMine(x, y) {
+		return Game.is_mine(this.#grid.get(x, y));
+	}
+
+	/**
 	 * @param {number} x
 	 * @param {number} y
 	 * @returns {void} mutate the grid
@@ -91,7 +115,6 @@ class Game {
 	 * @returns {MINE_HIDDEN | NOT_A_MINE}
 	 */
 	#setMine() {
-		console.log(this.difficulty)
 		return (Math.random() < this.difficulty) ? MINE_HIDDEN : NOT_A_MINE;
 	}
 
@@ -165,9 +188,12 @@ class Game {
 	 */
 	autoReveal(x, y) {
 		const value = this.#grid.get(x, y);
+		if (!Game.is_digit(value)) {
+			return;
+		}
 		let count = 0;
 		this.#grid.forNeighboors(x, y, (value) => {
-			if (is_flag(value)) count += 1
+			if (Game.is_flag(value)) count += 1
 		})
 		if (count != value) {
 			return;
@@ -180,7 +206,7 @@ class Game {
 	 */
 	getFlagCount() {
 		let count = 0;
-		this.#grid.forEachCell((value) => count += is_flag(value));
+		this.#grid.forEachCell((value) => count += Game.is_flag(value));
 		return count;
 	}
 
@@ -189,7 +215,7 @@ class Game {
 	 */
 	getCellRevealedCount() {
 		let count = 0;
-		this.#grid.forEachCell((value) => count += is_digit(value));
+		this.#grid.forEachCell((value) => count += Game.is_digit(value));
 		return count;
 	}
 }
