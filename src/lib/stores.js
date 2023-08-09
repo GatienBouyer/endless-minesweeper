@@ -31,29 +31,150 @@ export function is_mine(cell_value) {
 	return cell_value == MINE;
 }
 
+class Game {
+	/** @type {Grid} */
+	#grid
 
-// TODO make a Game class (with Grid, flag_count, revealed_count, and is_first_move)
+	// TODO add attribut status = "initialized" | "started" | "ended"
+	// TODO add attribut flagCount
+	// TODO add attribut revealedCount
 
-/**
- * @param {Grid} grid
- * @param {number} x
- * @param {number} y
- * @returns {void} mutate the grid
- */
-function toggleFlag(grid, x, y) {
-	const value = grid.get(x, y);
-	if (value == FLAG_UNDEFINED) {
-		grid.unset(x, y);
-	} else if (value == FLAG_MINE_HIDDEN) {
-		grid.set(x, y, MINE_HIDDEN);
-	} else if (value == FLAG_NOT_A_MINE) {
-		grid.set(x, y, NOT_A_MINE);
-	} else if (value == undefined) {
-		grid.set(x, y, FLAG_UNDEFINED);
-	} else if (value == MINE_HIDDEN) {
-		grid.set(x, y, FLAG_MINE_HIDDEN);
-	} else if (value == NOT_A_MINE) {
-		grid.set(x, y, FLAG_NOT_A_MINE);
+	/**
+	 * @param {number} size
+	 */
+	constructor(size) {
+		this.#grid = new Grid(size);
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {number}
+	 */
+	get(x, y) {
+		return this.#grid.get(x, y);
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {void} mutate the grid
+	 */
+	toggleFlag(x, y) {
+		const value = this.#grid.get(x, y);
+		if (value == FLAG_UNDEFINED) {
+			this.#grid.unset(x, y);
+		} else if (value == FLAG_MINE_HIDDEN) {
+			this.#grid.set(x, y, MINE_HIDDEN);
+		} else if (value == FLAG_NOT_A_MINE) {
+			this.#grid.set(x, y, NOT_A_MINE);
+		} else if (value == undefined) {
+			this.#grid.set(x, y, FLAG_UNDEFINED);
+		} else if (value == MINE_HIDDEN) {
+			this.#grid.set(x, y, FLAG_MINE_HIDDEN);
+		} else if (value == NOT_A_MINE) {
+			this.#grid.set(x, y, FLAG_NOT_A_MINE);
+		}
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {void} mutate the grid
+	 */
+	revealCell(x, y) {
+		const value = this.#grid.get(x, y);
+		if (value == undefined) {
+			this.#grid.set(x, y, _setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
+			this.revealCell(x, y)
+		} else if (value == NOT_A_MINE) {
+			this.#setNumber(x, y);
+		} else if (value == MINE_HIDDEN) {
+			this.#revealMines(x, y);
+		}
+	}
+
+	/**
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {void} mutate the grid
+	 */
+	#setNumber(x, y) {
+		let count = 0;
+		this.#grid.forNeighboors(x, y, (value, nx, ny) => {
+			if (value == undefined) {
+				const new_value = _setMine();
+				this.#grid.set(nx, ny, new_value);
+				if (new_value == MINE_HIDDEN) {
+					count += 1;
+				}
+			} else if (value == FLAG_UNDEFINED) {
+				if (_setMine() == MINE_HIDDEN) {
+					this.#grid.set(nx, ny, FLAG_MINE_HIDDEN);
+					count += 1;
+				} else {
+					this.#grid.set(nx, ny, FLAG_NOT_A_MINE);
+				}
+			} else if (value == MINE_HIDDEN || value == FLAG_MINE_HIDDEN || value == MINE) {
+				count += 1;
+			}
+		});
+		this.#grid.set(x, y, count);
+		if (count == 0) {
+			this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
+		}
+	}
+
+
+	/**
+	 * @param {number} x 
+	 * @param {number} y
+	 * @returns {void} mutate the grid
+	 */
+	#revealMines(x, y) {
+		this.#grid.set(x, y, MINE);
+		this.#grid.forEachCell((value, x, y) => {
+			if (value == FLAG_MINE_HIDDEN || value == MINE_HIDDEN) {
+				this.#grid.set(x, y, MINE);
+			}
+		});
+	}
+
+	/**
+	 * If cell revealed and all mine are flagged, reveal surroundings cells.
+	 * @param {number} x 
+	 * @param {number} y
+	 * @returns {void} mutate the grid
+	 */
+	autoReveal(x, y) {
+		const value = this.#grid.get(x, y);
+		let count = 0;
+		this.#grid.forNeighboors(x, y, (value) => {
+			if (is_flag(value)) count += 1
+		})
+		if (count != value) {
+			return;
+		}
+		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
+	}
+
+
+	/**
+	 * @returns {number}
+	 */
+	getFlagCount() {
+		let count = 0;
+		this.#grid.forEachCell((value) => count += is_flag(value));
+		return count;
+	}
+
+	/**
+	 * @returns {number}
+	 */
+	getCellRevealedCount() {
+		let count = 0;
+		this.#grid.forEachCell((value) => count += is_digit(value));
+		return count;
 	}
 }
 
@@ -61,115 +182,8 @@ function toggleFlag(grid, x, y) {
  * @returns {MINE_HIDDEN | NOT_A_MINE}
  */
 function _setMine() {
+	// TODO place this function inside Game and without the difficulty store
 	return (Math.random() < get(difficulty)) ? MINE_HIDDEN : NOT_A_MINE;
-}
-
-
-
-
-/**
- * @param {Grid} grid
- * @param {number} x
- * @param {number} y
- * @returns {void} mutate the grid
- */
-function _revealNumber(grid, x, y) {
-	let count = 0;
-	grid.forNeighboors(x, y, (value, nx, ny) => {
-		if (value == undefined) {
-			const new_value = _setMine();
-			grid.set(nx, ny, new_value);
-			if (new_value == MINE_HIDDEN) {
-				count += 1;
-			}
-		} else if (value == FLAG_UNDEFINED) {
-			if (_setMine() == MINE_HIDDEN) {
-				grid.set(nx, ny, FLAG_MINE_HIDDEN);
-				count += 1;
-			} else {
-				grid.set(nx, ny, FLAG_NOT_A_MINE);
-			}
-		} else if (value == MINE_HIDDEN || value == FLAG_MINE_HIDDEN || value == MINE) {
-			count += 1;
-		}
-	});
-	grid.set(x, y, count);
-	if (count == 0) {
-		grid.forNeighboors(x, y, (_, nx, ny) => revealCell(grid, nx, ny));
-	}
-}
-
-/**
- * @param {Grid} grid
- * @param {number} x
- * @param {number} y
- * @returns {void} mutate the grid
- */
-function revealCell(grid, x, y) {
-	const value = grid.get(x, y);
-	if (value == undefined) {
-		grid.set(x, y, _setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
-		revealCell(grid, x, y)
-	} else if (value == NOT_A_MINE) {
-		_revealNumber(grid, x, y);
-	} else if (value == MINE_HIDDEN) {
-		_revealMine(grid, x, y);
-	}
-}
-
-/**
- * @param {Grid} grid
- * @param {number} x 
- * @param {number} y
- * @returns {void} mutate the grid
- */
-
-function _revealMine(grid, x, y) {
-	grid.set(x, y, MINE);
-	grid.forEachCell((value, x, y) => {
-		if (value == FLAG_MINE_HIDDEN || value == MINE_HIDDEN) {
-			grid.set(x, y, MINE);
-		}
-	});
-}
-
-/**
- * If cell revealed and all mine are flagged, reveal surroundings cells.
- * @param {Grid} grid
- * @param {number} x 
- * @param {number} y
- * @returns {void} mutate the grid
- */
-function autoReveal(grid, x, y) {
-	const value = grid.get(x, y);
-	let count = 0;
-	grid.forNeighboors(x, y, (value) => {
-		if (is_flag(value)) count += 1
-	})
-	if (count != value) {
-		return;
-	}
-	grid.forNeighboors(x, y, (_, nx, ny) => revealCell(grid, nx, ny));
-}
-
-/**
- * @param {Grid} grid
- * @returns {number}
- */
-export function getFlagCount(grid) {
-	let count = 0;
-	grid.forEachCell((value) => count += is_flag(value));
-	return count;
-}
-
-/**
- * @param {Grid} grid
- * @returns {number}
- */
-export function getCellRevealedCount(grid) {
-	let count = 0;
-	grid.forEachCell((value) => count += is_digit(value));
-	return count;
 }
 
 /*****************************************************************************/
@@ -184,21 +198,21 @@ export const difficulty = writable(.20);
 
 function createGameStores() {
 	const size = writable(5);
-	const grid = writable(new Grid(get(size)));
+	const game = writable(new Game(get(size)));
 	return {
 		size: {
 			subscribe: size.subscribe,
-			set: (/** @type {number} */ s) => { size.set(s); grid.set(new Grid(s)) },
+			set: (/** @type {number} */ s) => { size.set(s); game.set(new Game(s)) },
 		},
-		grid: {
-			subscribe: grid.subscribe,
+		game: {
+			subscribe: game.subscribe,
 			// "return g" is to tricker an update
-			revealCell: (/** @type {number} */ x, /** @type {number} */ y) => grid.update((g) => { revealCell(g, x, y); return g }),
-			toggleFlag: (/** @type {number} */ x, /** @type {number} */ y) => grid.update((g) => { toggleFlag(g, x, y); return g }),
-			autoReveal: (/** @type {number} */ x, /** @type {number} */ y) => grid.update((g) => { autoReveal(g, x, y); return g }),
+			revealCell: (/** @type {number} */ x, /** @type {number} */ y) => game.update((g) => { g.revealCell(x, y); return g }),
+			toggleFlag: (/** @type {number} */ x, /** @type {number} */ y) => game.update((g) => { g.toggleFlag(x, y); return g }),
+			autoReveal: (/** @type {number} */ x, /** @type {number} */ y) => game.update((g) => { g.autoReveal(x, y); return g }),
 		},
 	}
 }
 
-export const { size, grid } = createGameStores();
+export const { size, game } = createGameStores();
 

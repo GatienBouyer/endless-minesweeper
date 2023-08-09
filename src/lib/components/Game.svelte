@@ -1,13 +1,13 @@
 <script>
 	import Grid from "$lib/components/Grid.svelte";
-	import { grid, getFlagCount, getCellRevealedCount } from "$lib/stores.js";
+	import { game } from "$lib/stores.js";
 </script>
 
 <Grid />
 
 <div id="stats">
-	<span><span>{getFlagCount($grid)}</span> mines marked</span>
-	<span><span>{getCellRevealedCount($grid)}</span> cells cleared</span>
+	<span><span>{$game.getFlagCount()}</span> mines marked</span>
+	<span><span>{$game.getCellRevealedCount()}</span> cells cleared</span>
 </div>
 
 <style>
