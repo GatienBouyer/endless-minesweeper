@@ -1,5 +1,6 @@
 <script>
 	import { game } from "$lib/stores.js";
+	import { createEventDispatcher, onMount } from "svelte";
 	/**
 	 * @type {number}
 	 */
@@ -9,6 +10,8 @@
 	 */
 	export let y;
 
+	const dispatch = createEventDispatcher();
+
 	/**
 	 * @param {KeyboardEvent | MouseEvent} e
 	 */
@@ -17,6 +20,7 @@
 			game.autoReveal(x, y);
 		} else if (e.ctrlKey) {
 			game.revealCell(x, y);
+			dispatch("revealed", { x: x, y: y });
 		} else {
 			game.toggleFlag(x, y);
 		}

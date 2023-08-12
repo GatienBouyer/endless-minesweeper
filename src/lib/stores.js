@@ -5,7 +5,7 @@ import { get, writable } from 'svelte/store';
 
 function createGameStores() {
 	const size = writable(7);
-	const difficulty = writable(.2);
+	const difficulty = writable(0);
 	const game = writable(new Game(get(size), get(difficulty)));
 	return {
 		size: {

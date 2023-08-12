@@ -1,4 +1,4 @@
-const NEIGHBOORS = [
+export const NEIGHBOORS = [
 	[-1, -1],
 	[-1, 0],
 	[-1, 1],
