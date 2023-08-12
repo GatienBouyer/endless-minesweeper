@@ -25,6 +25,7 @@
 
 <span
 	class="cell"
+	style="translate: {x * 104 - 52}% {y * 104 - 52}%"
 	on:click={handleAction}
 	on:keydown={(e) => (e.key == " " ? handleAction(e) : null)}
 	role="cell"
@@ -60,6 +61,7 @@
 		border: solid 0.125rem lightgrey;
 		border-radius: 0.25rem;
 		margin: 0.0625rem;
+		position: absolute;
 	}
 
 	svg {

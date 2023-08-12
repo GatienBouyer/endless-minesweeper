@@ -4,17 +4,16 @@
 	import { size } from "$lib/stores.js";
 
 	/**
-	 * @type {HTMLTableElement}
+	 * @type {HTMLDivElement}
 	 */
-	let grid;
+	let div;
 
 	onMount(() => {
-		for (let i = 0; i < $size; i++) {
-			const row = document.createElement("tr");
-			grid.appendChild(row);
-			for (let j = 0; j < $size; j++) {
+		const START_SIZE = $size;
+		for (let i = 0; i < START_SIZE; i++) {
+			for (let j = 0; j < START_SIZE; j++) {
 				new Cell({
-					target: row,
+					target: div,
 					props: {
 						x: j,
 						y: i,
@@ -25,12 +24,10 @@
 	});
 </script>
 
-<table bind:this={grid} style:--columnsCount={$size} />
+<div bind:this={div} style:--columnsCount={$size} />
 
 <style>
-	table {
-		display: grid;
-		grid-template-columns: repeat(var(--columnsCount, 1), auto);
+	div {
 		position: absolute;
 		top: 50%;
 		left: 50%;
