@@ -1,6 +1,7 @@
 <script>
 	import { game } from "$lib/stores.js";
-	import { createEventDispatcher, onMount } from "svelte";
+	import { beforeUpdate } from "svelte";
+
 	/**
 	 * @type {number}
 	 */
@@ -10,7 +11,10 @@
 	 */
 	export let y;
 
-	const dispatch = createEventDispatcher();
+	/**
+	 * @type {(x: number, y: number) => void}
+	 */
+	export let onRevealed;
 
 	/**
 	 * @param {KeyboardEvent | MouseEvent} e
@@ -20,11 +24,18 @@
 			game.autoReveal(x, y);
 		} else if (e.ctrlKey) {
 			game.revealCell(x, y);
-			dispatch("revealed", { x: x, y: y });
 		} else {
 			game.toggleFlag(x, y);
 		}
 	}
+
+	let notRevealed = true;
+	beforeUpdate(() => {
+		if (notRevealed && $game.isDigit(x, y)) {
+			notRevealed = false;
+			onRevealed(x, y);
+		}
+	});
 </script>
 
 <span

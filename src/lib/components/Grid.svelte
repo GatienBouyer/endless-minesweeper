@@ -5,23 +5,27 @@
 	import { NEIGHBOORS } from "$lib/Grid";
 
 	/**
-	 * @type {HTMLDivElement}
+	 * @type {Set<string>}
 	 */
-	let div;
+	const cells = new Set();
 
 	/**
 	 * @param {number} x
 	 * @param {number} y
 	 */
 	function createCell(x, y) {
-		const cell = new Cell({
+		const div = document.getElementById("grid");
+		if (!div) return;
+		if (cells.has(`${x}-${y}`)) return;
+		cells.add(`${x}-${y}`);
+		new Cell({
 			target: div,
 			props: {
 				x: x,
 				y: y,
+				onRevealed: expandGrid,
 			},
 		});
-		cell.$on("revealed", expandGrid);
 	}
 
 	onMount(() => {
@@ -35,12 +39,10 @@
 	});
 
 	/**
-	 * @param {{ detail: { x: number; y: number; }; }} event
+	 * @param {number} x
+	 * @param {number} y
 	 */
-	function expandGrid(event) {
-		// FIXME when difficulty = 0
-		const x = event.detail.x;
-		const y = event.detail.y;
+	function expandGrid(x, y) {
 		NEIGHBOORS.forEach((delta) => {
 			if (x + delta[0] < 0) return;
 			if (y + delta[1] < 0) return;
@@ -51,7 +53,7 @@
 	}
 </script>
 
-<div bind:this={div} style:--columnsCount={$size} />
+<div id="grid" />
 
 <style>
 	div {
