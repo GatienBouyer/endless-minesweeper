@@ -1,15 +1,6 @@
-export const NEIGHBOORS = [
-	[-1, -1],
-	[-1, 0],
-	[-1, 1],
-	[0, -1],
-	[0, 1],
-	[1, -1],
-	[1, 0],
-	[1, 1],
-]
+import { NEIGHBOORS } from "$lib/constants";
 
-class Grid {
+class Grid2DArray {
 	#array: number[][];
 	size: number;
 
@@ -39,14 +30,14 @@ class Grid {
 	}
 
 	forNeighboors(x: number, y: number, callbackfn: (value: number, x: number, y: number) => void): void {
-		NEIGHBOORS.forEach(delta => {
+		for (const delta of NEIGHBOORS) {
 			const nx = x + delta[0]; const ny = y + delta[1];
 			if (!(0 <= nx && nx < this.size && 0 <= ny && ny < this.size)) {
 				return;
 			}
 			callbackfn(this.#array[nx][ny], nx, ny);
-		})
+		}
 	}
 }
 
-export default Grid;
+export default Grid2DArray;

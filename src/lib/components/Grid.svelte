@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import Cell from "$lib/components/Cell.svelte";
 	import { size } from "$lib/stores";
-	import { NEIGHBOORS } from "$lib/Grid";
+	import { NEIGHBOORS } from "$lib/constants";
 
 	const cells: Set<string> = new Set();
 
@@ -32,13 +32,13 @@
 	});
 
 	function expandGrid(x: number, y: number) {
-		NEIGHBOORS.forEach((delta: number[]) => {
+		for (const delta of NEIGHBOORS) {
 			if (x + delta[0] < 0) return;
 			if (y + delta[1] < 0) return;
 			if (x + delta[0] >= $size) return;
 			if (y + delta[1] >= $size) return;
 			createCell(x + delta[0], y + delta[1]);
-		});
+		}
 	}
 </script>
 

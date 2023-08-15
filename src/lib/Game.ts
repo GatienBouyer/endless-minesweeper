@@ -1,4 +1,4 @@
-import Grid from './Grid';
+import Grid2DArray from './Grid2DArray';
 
 // values: [[0 - 8]]
 const MINE = 9;
@@ -9,8 +9,16 @@ const FLAG_MINE_HIDDEN = 13;
 const FLAG_UNDEFINED = 14;
 // UNEXPLORED: undefined
 
+interface DataStructure {
+	get(x: number, y: number): number | undefined,
+	set(x: number, y: number, value: number): void,
+	unset(x: number, y: number): void,
+	forEachCell(callbackfn: (value: number, x: number, y: number) => void): void,
+	forNeighboors(x: number, y: number, callbackfn: (value: number, x: number, y: number) => void): void,
+}
+
 class Game {
-	#grid: Grid
+	#grid: DataStructure
 
 	/**
 	 * Between 0 and 1. 0 easy (no mines). 1 impossible (all mines).
@@ -24,7 +32,7 @@ class Game {
 
 	constructor(size: number, difficulty: number) {
 		this.difficulty = difficulty;
-		this.#grid = new Grid(size);
+		this.#grid = new Grid2DArray(size);
 	}
 
 	get(x: number, y: number): number | undefined {
