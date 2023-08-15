@@ -25,8 +25,7 @@ class Game {
 	 */
 	difficulty: number
 
-	// TODO add "ended" status
-	status: "created" | "started" = "created";
+	status: "created" | "started" | "ended" = "created";
 
 	flagCount: number = 0;
 	revealCount: number = 0;
@@ -143,6 +142,7 @@ class Game {
 	}
 
 	#revealMines(x: number, y: number): void {
+		this.status = "ended";
 		if (this.isFlag(x, y)) {
 			this.flagCount -= 1;
 		}
