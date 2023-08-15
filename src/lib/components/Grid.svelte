@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import Cell from "$lib/components/Cell.svelte";
 	import { size } from "$lib/stores";
-	import { NEIGHBOORS } from "$lib/constants";
+	import { NEIGHBOORS } from "$lib/minesweeper/constants";
 
 	const cells: Set<string> = new Set();
 

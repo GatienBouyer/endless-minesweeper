@@ -1,4 +1,4 @@
-import { NEIGHBOORS } from "$lib/constants";
+import { NEIGHBOORS } from "./constants";
 
 class Grid2DArray {
 	#array: number[][];

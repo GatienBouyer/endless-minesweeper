@@ -1,4 +1,4 @@
-import Game from './Game';
+import Game from './minesweeper/Game';
 
 import { get, writable } from 'svelte/store';
 
