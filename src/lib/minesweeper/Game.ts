@@ -25,7 +25,8 @@ class Game {
 	 */
 	difficulty: number
 
-	// TODO add attribut status = "created" | "started" | "ended"
+	// TODO add "ended" status
+	status: "created" | "started" = "created";
 
 	flagCount: number = 0;
 	revealCount: number = 0;
@@ -95,9 +96,16 @@ class Game {
 	revealCell(x: number, y: number): void {
 		const value = this.#grid.get(x, y);
 		if (value == undefined) {
-			this.#grid.set(x, y, this.#setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
-			this.revealCell(x, y)
-		} else if (value == NOT_A_MINE) {
+			if (this.status == "created") {
+				this.#grid.set(x, y, NOT_A_MINE);
+			} else {
+				this.#grid.set(x, y, MINE_HIDDEN);
+			}
+			this.revealCell(x, y);
+			return;
+		}
+		this.status = "started";
+		if (value == NOT_A_MINE) {
 			this.#setNumber(x, y);
 		} else if (value == MINE_HIDDEN) {
 			this.#revealMines(x, y);

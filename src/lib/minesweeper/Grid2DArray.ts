@@ -33,7 +33,7 @@ class Grid2DArray {
 		for (const delta of NEIGHBOORS) {
 			const nx = x + delta[0]; const ny = y + delta[1];
 			if (!(0 <= nx && nx < this.size && 0 <= ny && ny < this.size)) {
-				return;
+				continue;
 			}
 			callbackfn(this.#array[nx][ny], nx, ny);
 		}

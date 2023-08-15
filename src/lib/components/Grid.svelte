@@ -33,10 +33,10 @@
 
 	function expandGrid(x: number, y: number) {
 		for (const delta of NEIGHBOORS) {
-			if (x + delta[0] < 0) return;
-			if (y + delta[1] < 0) return;
-			if (x + delta[0] >= $size) return;
-			if (y + delta[1] >= $size) return;
+			if (x + delta[0] < 0) continue;
+			if (y + delta[1] < 0) continue;
+			if (x + delta[0] >= $size) continue;
+			if (y + delta[1] >= $size) continue;
 			createCell(x + delta[0], y + delta[1]);
 		}
 	}
