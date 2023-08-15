@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
 	import Grid from "$lib/components/Grid.svelte";
-	import { game } from "$lib/stores.js";
+	import { game } from "$lib/stores";
 </script>
 
 <Grid />

@@ -1,19 +1,12 @@
-<script>
+<script lang="ts">
 	import { onMount } from "svelte";
 	import Cell from "$lib/components/Cell.svelte";
-	import { size } from "$lib/stores.js";
+	import { size } from "$lib/stores";
 	import { NEIGHBOORS } from "$lib/Grid";
 
-	/**
-	 * @type {Set<string>}
-	 */
-	const cells = new Set();
+	const cells: Set<string> = new Set();
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	function createCell(x, y) {
+	function createCell(x: number, y: number) {
 		const div = document.getElementById("grid");
 		if (!div) return;
 		if (cells.has(`${x}-${y}`)) return;
@@ -38,12 +31,8 @@
 		}
 	});
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	function expandGrid(x, y) {
-		NEIGHBOORS.forEach((delta) => {
+	function expandGrid(x: number, y: number) {
+		NEIGHBOORS.forEach((delta: number[]) => {
 			if (x + delta[0] < 0) return;
 			if (y + delta[1] < 0) return;
 			if (x + delta[0] >= $size) return;

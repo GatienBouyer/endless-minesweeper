@@ -10,92 +10,54 @@ const FLAG_UNDEFINED = 14;
 // UNEXPLORED: undefined
 
 class Game {
-	/** @type {Grid} */
-	#grid
+	#grid: Grid
 
 	/**
 	 * Between 0 and 1. 0 easy (no mines). 1 impossible (all mines).
-	 * @type {number}
 	 */
-	difficulty
+	difficulty: number
 
-	// TODO add attribut status = "initialized" | "started" | "ended"
+	// TODO add attribut status = "created" | "started" | "ended"
 
-	flagCount = 0;
-	revealCount = 0;
+	flagCount: number = 0;
+	revealCount: number = 0;
 
-	/**
-	 * @param {number} size
-	 * @param {number} difficulty
-	 */
-	constructor(size, difficulty) {
+	constructor(size: number, difficulty: number) {
 		this.difficulty = difficulty;
 		this.#grid = new Grid(size);
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {number | undefined}
-	 */
-	get(x, y) {
+	get(x: number, y: number): number | undefined {
 		return this.#grid.get(x, y);
 	}
 
-	/**
-	 * @param {number | undefined} cell_value
-	 */
-	static is_flag(cell_value) {
+	static is_flag(cell_value: number | undefined): boolean {
 		// @ts-ignore
 		return cell_value >= FLAG_NOT_A_MINE;
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	isFlag(x, y) {
+	isFlag(x: number, y: number): boolean {
 		return Game.is_flag(this.#grid.get(x, y));
 	}
 
-
-	/**
-	 * @param {number | undefined} cell_value
-	 */
-	static is_digit(cell_value) {
+	static is_digit(cell_value: number | undefined): boolean {
 		// @ts-ignore
 		return 0 <= cell_value && cell_value <= 8;
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	isDigit(x, y) {
+	isDigit(x: number, y: number): boolean {
 		return Game.is_digit(this.#grid.get(x, y));
 	}
 
-	/**
-	 * @param {number | undefined} cell_value
-	 */
-	static is_mine(cell_value) {
+	static is_mine(cell_value: number | undefined): boolean {
 		return cell_value == MINE;
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	isMine(x, y) {
+	isMine(x: number, y: number): boolean {
 		return Game.is_mine(this.#grid.get(x, y));
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {void} mutate the grid
-	 */
-	toggleFlag(x, y) {
+	toggleFlag(x: number, y: number): void {
 		const value = this.#grid.get(x, y);
 		if (value == FLAG_UNDEFINED) {
 			this.flagCount -= 1;
@@ -118,19 +80,11 @@ class Game {
 		}
 	}
 
-	/**
-	 * @returns {MINE_HIDDEN | NOT_A_MINE}
-	 */
-	#setMine() {
+	#setMine(): typeof MINE_HIDDEN | typeof NOT_A_MINE {
 		return (Math.random() < this.difficulty) ? MINE_HIDDEN : NOT_A_MINE;
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {void} mutate the grid
-	 */
-	revealCell(x, y) {
+	revealCell(x: number, y: number): void {
 		const value = this.#grid.get(x, y);
 		if (value == undefined) {
 			this.#grid.set(x, y, this.#setMine()) // TODO first reveal => not a mine  &&  not fist reveal => a mine
@@ -142,12 +96,7 @@ class Game {
 		}
 	}
 
-	/**
-	 * @param {number} x
-	 * @param {number} y
-	 * @returns {void} mutate the grid
-	 */
-	#setNumber(x, y) {
+	#setNumber(x: number, y: number): void {
 		let count = 0;
 		this.#grid.forNeighboors(x, y, (value, nx, ny) => {
 			if (value == undefined) {
@@ -177,12 +126,7 @@ class Game {
 		}
 	}
 
-	/**
-	 * @param {number} x 
-	 * @param {number} y
-	 * @returns {void} mutate the grid
-	 */
-	#revealMines(x, y) {
+	#revealMines(x: number, y: number): void {
 		if (this.isFlag(x, y)) {
 			this.flagCount -= 1;
 		}
@@ -197,13 +141,7 @@ class Game {
 		});
 	}
 
-	/**
-	 * If cell revealed and all mine are flagged, reveal surroundings cells.
-	 * @param {number} x 
-	 * @param {number} y
-	 * @returns {void} mutate the grid
-	 */
-	autoReveal(x, y) {
+	autoReveal(x: number, y: number): void {
 		const value = this.#grid.get(x, y);
 		if (!Game.is_digit(value)) {
 			return;

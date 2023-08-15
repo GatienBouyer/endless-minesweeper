@@ -1,25 +1,13 @@
-<script>
-	import { game } from "$lib/stores.js";
+<script lang="ts">
+	import { game } from "$lib/stores";
 	import { beforeUpdate } from "svelte";
 
-	/**
-	 * @type {number}
-	 */
-	export let x;
-	/**
-	 * @type {number}
-	 */
-	export let y;
+	export let x: number;
+	export let y: number;
 
-	/**
-	 * @type {(x: number, y: number) => void}
-	 */
-	export let onRevealed;
+	export let onRevealed: (x: number, y: number) => void;
 
-	/**
-	 * @param {KeyboardEvent | MouseEvent} e
-	 */
-	function handleAction(e) {
+	function handleAction(e: KeyboardEvent | MouseEvent): void {
 		if ($game.isDigit(x, y)) {
 			game.autoReveal(x, y);
 		} else if (e.ctrlKey) {

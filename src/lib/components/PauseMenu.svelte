@@ -1,5 +1,5 @@
-<script>
-	import { size, difficulty } from "$lib/stores.js";
+<script lang="ts">
+	import { size, difficulty } from "$lib/stores";
 </script>
 
 <div>
