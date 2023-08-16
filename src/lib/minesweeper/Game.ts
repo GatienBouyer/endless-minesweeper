@@ -1,4 +1,4 @@
-import Grid2DArray from './Grid2DArray';
+import GridMap from './GridMap';
 
 // values: [[0 - 8]]
 const MINE = 9;
@@ -15,7 +15,7 @@ interface DataStructure {
 	unset(x: number, y: number): void,
 	has(x: number, y: number): boolean,
 	forEachCell(callbackfn: (value: number, x: number, y: number) => void): void,
-	forNeighboors(x: number, y: number, callbackfn: (value: number, x: number, y: number) => void): void,
+	forNeighboors(x: number, y: number, callbackfn: (value: number | undefined, x: number, y: number) => void): void,
 }
 
 class Game {
@@ -31,9 +31,9 @@ class Game {
 	flagCount: number = 0;
 	revealCount: number = 0;
 
-	constructor(size: number, difficulty: number) {
+	constructor(difficulty: number) {
 		this.difficulty = difficulty;
-		this.#grid = new Grid2DArray(size);
+		this.#grid = new GridMap();
 	}
 
 	get(x: number, y: number): number | undefined {

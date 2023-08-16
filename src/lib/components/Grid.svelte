@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import Cell from "$lib/components/Cell.svelte";
-	import { game, size } from "$lib/stores";
+	import { game } from "$lib/stores";
 	import { NEIGHBOORS } from "$lib/minesweeper/constants";
 
 	const cells: Set<string> = new Set();

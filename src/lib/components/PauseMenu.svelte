@@ -1,14 +1,9 @@
 <script lang="ts">
-	import { size, difficulty } from "$lib/stores";
+	import { difficulty } from "$lib/stores";
 </script>
 
 <div>
 	<p>Paused</p>
-	<label
-		>Size:
-		<input type="number" bind:value={$size} min="0" max="20" />
-		<input type="range" bind:value={$size} min="0" max="20" />
-	</label>
 	<label
 		>Difficulty:
 		<input
