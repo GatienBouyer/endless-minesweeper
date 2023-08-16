@@ -7,16 +7,17 @@
 
 <div id="title">
 	<h1>Minesweeper</h1>
-	<button on:click={() => (paused = !paused)}
-		>{paused ? "Play!" : "Pause"}</button
-	>
+	<button on:click={() => (paused = !paused)}>
+		{paused ? "Play!" : "Pause"}
+	</button>
 </div>
 
-{#if paused}
+<div style="display: {paused ? '' : 'none'};">
 	<PauseMenu />
-{:else}
+</div>
+<div style="display: {paused ? 'none' : ''};">
 	<Game />
-{/if}
+</div>
 
 <footer>
 	<span>Gatien, 2023</span>
