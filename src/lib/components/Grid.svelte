@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import Cell from "$lib/components/Cell.svelte";
-	import { size } from "$lib/stores";
+	import { game, size } from "$lib/stores";
 	import { NEIGHBOORS } from "$lib/minesweeper/constants";
 
 	const cells: Set<string> = new Set();
@@ -33,10 +33,7 @@
 
 	function expandGrid(x: number, y: number) {
 		for (const delta of NEIGHBOORS) {
-			if (x + delta[0] < 0) continue;
-			if (y + delta[1] < 0) continue;
-			if (x + delta[0] >= $size) continue;
-			if (y + delta[1] >= $size) continue;
+			if (!$game.has(x + delta[0], y + delta[1])) continue;
 			createCell(x + delta[0], y + delta[1]);
 		}
 	}

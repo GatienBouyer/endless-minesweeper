@@ -21,6 +21,11 @@ class Grid2DArray {
 		delete this.#array[x][y];
 	}
 
+	has(x: number, y: number): boolean {
+		if (x < 0 || y < 0) return false;
+		return this.#array.at(x)?.at(y) != undefined;
+	}
+
 	forEachCell(callbackfn: (value: number, x: number, y: number) => void): void {
 		this.#array.forEach((column, x) => {
 			column.forEach((value, y) => {

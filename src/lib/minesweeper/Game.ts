@@ -13,6 +13,7 @@ interface DataStructure {
 	get(x: number, y: number): number | undefined,
 	set(x: number, y: number, value: number): void,
 	unset(x: number, y: number): void,
+	has(x: number, y: number): boolean,
 	forEachCell(callbackfn: (value: number, x: number, y: number) => void): void,
 	forNeighboors(x: number, y: number, callbackfn: (value: number, x: number, y: number) => void): void,
 }
@@ -37,6 +38,10 @@ class Game {
 
 	get(x: number, y: number): number | undefined {
 		return this.#grid.get(x, y);
+	}
+
+	has(x: number, y: number): boolean {
+		return this.#grid.has(x, y);
 	}
 
 	static is_flag(cell_value: number | undefined): boolean {
