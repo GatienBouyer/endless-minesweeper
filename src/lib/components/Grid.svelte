@@ -22,13 +22,8 @@
 	}
 
 	onMount(() => {
-		const START_SIZE = 5;
-		for (let y = 0; y < START_SIZE; y++) {
-			for (let x = 0; x < START_SIZE; x++) {
-				// TODO use negative numbers and cells around (0,0)
-				createCell(x, y);
-			}
-		}
+		game.revealCell(0, 0);
+		createCell(0, 0);
 	});
 
 	function expandGrid(x: number, y: number) {
