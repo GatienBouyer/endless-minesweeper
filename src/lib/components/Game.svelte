@@ -8,7 +8,7 @@
 {#if $game.status == "ended"}
 	<div id="game-over">
 		<span>Game over</span>
-		<!-- TODO remove existing cell -->
+		<!-- TODO remove existing cells -->
 		<button on:click={game.restart}>New game</button>
 	</div>
 {/if}

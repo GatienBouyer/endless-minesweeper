@@ -4,6 +4,7 @@
 	import { game } from "$lib/stores";
 	import { NEIGHBOORS } from "$lib/minesweeper/constants";
 
+	// TODO avoid using this extra memory
 	const cells: Set<string> = new Set();
 
 	function createCell(x: number, y: number) {
@@ -28,7 +29,6 @@
 
 	function expandGrid(x: number, y: number) {
 		for (const delta of NEIGHBOORS) {
-			if (!$game.has(x + delta[0], y + delta[1])) continue;
 			createCell(x + delta[0], y + delta[1]);
 		}
 	}
