@@ -18,7 +18,7 @@
 
 <style>
 	footer {
-		position: absolute;
+		position: fixed;
 		right: 0;
 		bottom: 0;
 		margin: 1rem;
