@@ -102,11 +102,11 @@ class Game {
 			} else {
 				this.#grid.set(x, y, MINE_HIDDEN);
 			}
+			this.status = "started";
 			this.notifyExpand(x, y);
 			this.revealCell(x, y);
 			return;
 		}
-		this.status = "started";
 		if (value == NOT_A_MINE) {
 			this.#setNumber(x, y);
 		} else if (value == MINE_HIDDEN) {
