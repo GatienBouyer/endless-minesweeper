@@ -17,7 +17,8 @@ function createGameStores() {
 			revealCell: (x: number, y: number) => game.update((g) => { g.revealCell(x, y); return g }),
 			toggleFlag: (x: number, y: number) => game.update((g) => { g.toggleFlag(x, y); return g }),
 			autoReveal: (x: number, y: number) => game.update((g) => { g.autoReveal(x, y); return g }),
-			restart: () => game.update(() => new Game(get(difficulty))),
+			start: () => game.update((g) => { g.start(); return g }),
+			restart: () => game.update((g) => { g.restart(); return g }),
 		},
 	}
 }

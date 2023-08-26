@@ -39,6 +39,10 @@ class GridMap {
 			callbackfn(value, nx, ny);
 		}
 	}
+
+	clear(): void {
+		this.#map.clear();
+	}
 }
 
 export default GridMap;

@@ -1,15 +1,21 @@
 <script lang="ts">
 	import Grid from "$lib/components/Grid.svelte";
 	import { game } from "$lib/stores";
+
+	let grid: Grid;
+
+	function newGame(): void {
+		grid.clear();
+		game.restart();
+	}
 </script>
 
-<Grid />
+<Grid bind:this={grid} />
 
 {#if $game.status == "ended"}
 	<div id="game-over">
 		<span>Game over</span>
-		<!-- TODO remove existing cells -->
-		<button on:click={game.restart}>New game</button>
+		<button on:click={newGame}>New game</button>
 	</div>
 {/if}
 

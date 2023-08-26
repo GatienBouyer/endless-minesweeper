@@ -16,6 +16,7 @@ interface DataStructure {
 	has(x: number, y: number): boolean,
 	forEachCell(callbackfn: (value: number, x: number, y: number) => void): void,
 	forNeighboors(x: number, y: number, callbackfn: (value: number | undefined, x: number, y: number) => void): void,
+	clear(): void,
 }
 
 class Game {
@@ -176,10 +177,22 @@ class Game {
 		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 	}
 
-	notifyExpand(x: number, y: number) {
+	notifyExpand(x: number, y: number): void {
 		for (const func of this.listeners) {
 			func(x, y)
 		}
+	}
+
+	start(): void {
+		this.revealCell(0, 0);
+	}
+
+	restart(): void {
+		this.#grid.clear();
+		this.flagCount = 0;
+		this.revealCount = 0;
+		this.status = "created";
+		this.start();
 	}
 }
 

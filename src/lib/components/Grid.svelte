@@ -4,6 +4,10 @@
 	import Cell from "$lib/components/Cell.svelte";
 	import { game } from "$lib/stores";
 
+	export function clear() {
+		gridDiv.textContent = "";
+	}
+
 	function createCell(x: number, y: number) {
 		new Cell({
 			target: gridDiv,
@@ -18,7 +22,7 @@
 
 	onMount(() => {
 		get(game).listeners.push(createCell);
-		game.revealCell(0, 0);
+		game.start();
 	});
 </script>
 
