@@ -184,14 +184,24 @@ class Game {
 	}
 
 	start(): void {
-		this.revealCell(0, 0);
+		let n = 0;
+		const MAX_TRY = 100;
+		while (this.#grid.get(0, 0) != 0 && n < MAX_TRY) {
+			this.clean();
+			this.revealCell(0, 0);
+			n += 1;
+		}
 	}
 
-	restart(): void {
+	clean(): void {
 		this.#grid.clear();
 		this.flagCount = 0;
 		this.revealCount = 0;
 		this.status = "created";
+	}
+
+	restart(): void {
+		this.clean();
 		this.start();
 	}
 }
