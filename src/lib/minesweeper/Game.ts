@@ -21,7 +21,8 @@ interface DataStructure {
 
 class Game {
 	#grid: DataStructure
-	listeners: { (x: number, y: number): void }[]
+	listenersExpand: { (x: number, y: number): void }[]
+	listenersClear: { (): void }[]
 	difficulty: number /**< Between 0 and 1. 0 easy (no mines). 1 impossible (all mines). */
 	status: "created" | "started" | "ended" = "created";
 	flagCount: number = 0;
@@ -30,7 +31,8 @@ class Game {
 	constructor(difficulty: number) {
 		this.difficulty = difficulty;
 		this.#grid = new GridMap();
-		this.listeners = new Array();
+		this.listenersExpand = new Array();
+		this.listenersClear = new Array();
 	}
 
 	get(x: number, y: number): number | undefined {
@@ -178,8 +180,13 @@ class Game {
 	}
 
 	notifyExpand(x: number, y: number): void {
-		for (const func of this.listeners) {
+		for (const func of this.listenersExpand) {
 			func(x, y)
+		}
+	}
+	notifyClear(): void {
+		for (const func of this.listenersClear) {
+			func()
 		}
 	}
 
@@ -194,6 +201,7 @@ class Game {
 	}
 
 	clean(): void {
+		this.notifyClear();
 		this.#grid.clear();
 		this.flagCount = 0;
 		this.revealCount = 0;

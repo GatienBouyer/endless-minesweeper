@@ -19,7 +19,8 @@
 
 <span
 	class="cell"
-	style="translate: {x * 104 - 52}% {y * 104 - 52}%"
+	class:revealed={$game.isDigit(x, y)}
+	style="translate: {x * 2 - 1}em {y * 2 - 1}em"
 	on:click={handleAction}
 	on:keydown={(e) => (e.key == " " ? handleAction(e) : null)}
 	role="cell"
@@ -36,16 +37,19 @@
 
 <style>
 	.cell {
-		width: 2em;
-		height: 2em;
+		width: 1.5em;
+		height: 1.5em;
 		display: grid;
 		justify-items: center;
 		align-items: center;
-		background-color: darkgrey;
-		border: solid 0.125rem lightgrey;
-		border-radius: 0.25rem;
-		margin: 0.0625rem;
 		position: absolute;
 		cursor: pointer;
+		background-color: darkgrey;
+		z-index: unset;
+		padding: 0.25em;
+	}
+	.cell.revealed {
+		background-color: lightgrey;
+		box-shadow: inset 0 0 0.125em 0 white;
 	}
 </style>

@@ -1,21 +1,14 @@
 <script lang="ts">
 	import Grid from "$lib/components/Grid.svelte";
 	import { game } from "$lib/stores";
-
-	let grid: Grid;
-
-	function newGame(): void {
-		grid.clear();
-		game.restart();
-	}
 </script>
 
-<Grid bind:this={grid} />
+<Grid />
 
 {#if $game.status == "ended"}
 	<div id="game-over">
 		<span>Game over</span>
-		<button on:click={newGame}>New game</button>
+		<button on:click={game.restart}>New game</button>
 	</div>
 {/if}
 

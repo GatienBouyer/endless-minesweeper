@@ -4,7 +4,7 @@
 	import Cell from "$lib/components/Cell.svelte";
 	import { game } from "$lib/stores";
 
-	export function clear() {
+	function clear() {
 		gridDiv.textContent = "";
 	}
 
@@ -21,7 +21,8 @@
 	let gridDiv: HTMLDivElement;
 
 	onMount(() => {
-		get(game).listeners.push(createCell);
+		get(game).listenersExpand.push(createCell);
+		get(game).listenersClear.push(clear);
 		game.start();
 	});
 </script>
