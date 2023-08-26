@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { game } from "$lib/stores";
-	import { beforeUpdate } from "svelte";
 
 	export let x: number;
 	export let y: number;
-
-	export let onRevealed: (x: number, y: number) => void;
 
 	function handleAction(e: KeyboardEvent | MouseEvent): void {
 		if ($game.isDigit(x, y)) {
@@ -16,14 +13,6 @@
 			game.toggleFlag(x, y);
 		}
 	}
-
-	let notRevealed = true;
-	beforeUpdate(() => {
-		if (notRevealed && $game.isDigit(x, y)) {
-			notRevealed = false;
-			onRevealed(x, y);
-		}
-	});
 </script>
 
 <span

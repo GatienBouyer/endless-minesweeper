@@ -20,20 +20,16 @@ interface DataStructure {
 
 class Game {
 	#grid: DataStructure
-
-	/**
-	 * Between 0 and 1. 0 easy (no mines). 1 impossible (all mines).
-	 */
-	difficulty: number
-
+	listeners: { (x: number, y: number): void }[]
+	difficulty: number /**< Between 0 and 1. 0 easy (no mines). 1 impossible (all mines). */
 	status: "created" | "started" | "ended" = "created";
-
 	flagCount: number = 0;
 	revealCount: number = 0;
 
 	constructor(difficulty: number) {
 		this.difficulty = difficulty;
 		this.#grid = new GridMap();
+		this.listeners = new Array();
 	}
 
 	get(x: number, y: number): number | undefined {
@@ -105,6 +101,7 @@ class Game {
 			} else {
 				this.#grid.set(x, y, MINE_HIDDEN);
 			}
+			this.notifyExpand(x, y);
 			this.revealCell(x, y);
 			return;
 		}
@@ -122,6 +119,7 @@ class Game {
 			if (value == undefined) {
 				const new_value = this.#setMine();
 				this.#grid.set(nx, ny, new_value);
+				this.notifyExpand(nx, ny);
 				if (new_value == MINE_HIDDEN) {
 					count += 1;
 				}
@@ -132,6 +130,7 @@ class Game {
 				} else {
 					this.#grid.set(nx, ny, FLAG_NOT_A_MINE);
 				}
+				this.notifyExpand(nx, ny);
 			} else if (value == MINE_HIDDEN || value == FLAG_MINE_HIDDEN || value == MINE) {
 				count += 1;
 			}
@@ -175,6 +174,12 @@ class Game {
 			return;
 		}
 		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
+	}
+
+	notifyExpand(x: number, y: number) {
+		for (const func of this.listeners) {
+			func(x, y)
+		}
 	}
 }
 
