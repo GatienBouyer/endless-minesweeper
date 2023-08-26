@@ -3,7 +3,9 @@
 </script>
 
 <div>
+	<h1>Minesweeper</h1>
 	<p>Paused</p>
+	<button on:click>Play!</button>
 	<label
 		>Difficulty:
 		<input
@@ -26,12 +28,15 @@
 <style>
 	div {
 		position: absolute;
-		top: 50%;
 		left: 50%;
-		translate: -50% -50%;
+		translate: -50% 0%;
 		display: grid;
 		gap: 2rem;
 		justify-items: center;
+	}
+
+	h1 {
+		margin: 5rem;
 	}
 
 	label {

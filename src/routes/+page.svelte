@@ -5,18 +5,11 @@
 	let paused = false;
 </script>
 
-<div id="title">
-	<h1>Minesweeper</h1>
-	<button on:click={() => (paused = !paused)}>
-		{paused ? "Play!" : "Pause"}
-	</button>
-</div>
-
 <div style="display: {paused ? '' : 'none'};">
-	<PauseMenu />
+	<PauseMenu on:click={() => (paused = !paused)} />
 </div>
 <div style="display: {paused ? 'none' : ''};">
-	<Game />
+	<Game on:click={() => (paused = !paused)} />
 </div>
 
 <footer>
@@ -24,20 +17,6 @@
 </footer>
 
 <style>
-	#title {
-		display: grid;
-		justify-items: center;
-		position: absolute;
-		top: 1rem;
-		left: 50%;
-		translate: -50%;
-		z-index: 9999;
-	}
-
-	h1 {
-		text-align: center;
-	}
-
 	footer {
 		position: absolute;
 		right: 0;

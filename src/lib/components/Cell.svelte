@@ -46,5 +46,6 @@
 		border-radius: 0.25rem;
 		margin: 0.0625rem;
 		position: absolute;
+		cursor: pointer;
 	}
 </style>
