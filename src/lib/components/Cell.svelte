@@ -52,4 +52,10 @@
 		background-color: lightgrey;
 		box-shadow: inset 0 0 0.125em 0 white;
 	}
+	.cell:not(.revealed)::after {
+		content: "";
+		position: absolute;
+		inset: 0;
+		translate: 60vw 60vh;
+	}
 </style>

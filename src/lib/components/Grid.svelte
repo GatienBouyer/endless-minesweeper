@@ -49,7 +49,6 @@
 	function stickLeft() {
 		goLeftButton.style.left = `-${window.scrollX}px`;
 	}
-	// TODO add a (scrolling) margin around the cells
 </script>
 
 <svelte:window on:scroll={stickUp} on:scroll={stickLeft} />
