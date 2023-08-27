@@ -1,8 +1,15 @@
 <script lang="ts">
 	import Grid from "$lib/components/Grid.svelte";
 	import { game } from "$lib/stores";
+	function shortcutNewGame(event: KeyboardEvent) {
+		// TODO find a better place for this code
+		if (event.key === "n") {
+			game.restart();
+		}
+	}
 </script>
 
+<svelte:window on:keydown={shortcutNewGame} />
 <Grid />
 
 {#if $game.status == "ended"}

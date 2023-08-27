@@ -40,6 +40,8 @@
 		const newValue = value + GO_LEFT_INCREMENT;
 		gridDiv.style.left = `${newValue}%`;
 	}
+	// TODO add a (scrolling) margin around the cells
+	// TODO fixed position (on 1 axis) for buttons
 </script>
 
 <button on:click={goUp} id="goUp">Go up</button>

@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { difficulty } from "$lib/stores";
+	import { difficulty, game } from "$lib/stores";
 </script>
 
 <div>
 	<h1>Minesweeper</h1>
 	<p>Paused</p>
 	<button on:click>Play!</button>
+	<button on:click={game.restart} on:click>New game</button>
 	<label
 		>Difficulty:
 		<input
