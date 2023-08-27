@@ -20,8 +20,8 @@
 
 <style>
 	#stats {
-		position: absolute;
-		bottom: 3rem;
+		position: fixed;
+		bottom: 10%;
 		left: 50%;
 		translate: -50%;
 		display: flex;
@@ -38,7 +38,7 @@
 	}
 
 	#game-over {
-		position: absolute;
+		position: fixed;
 		top: 50%;
 		left: 50%;
 		translate: -50% -50%;
