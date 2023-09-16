@@ -25,6 +25,8 @@
 	let maxX = 0;
 	let maxY = 0;
 	let scale: number;
+	let translateX: number;
+	let translateY: number;
 
 	function createCell(x: number, y: number) {
 		new Cell({
@@ -36,11 +38,9 @@
 		});
 		if (x > maxX) {
 			maxX = x;
-			gridDiv.style.setProperty("--max-x", maxX.toString());
 		}
 		if (y > maxY) {
 			maxY = y;
-			gridDiv.style.setProperty("--max-y", maxY.toString());
 		}
 	}
 
@@ -91,10 +91,10 @@
 
 <Scrollable4Dir
 	bind:this={scrollable4Dir}
-	margin_bottom={`calc(${maxY} * 2em + 60vh)`}
-	margin_right={`calc(${maxX} * 2em + 60vw)`}
+	margin_bottom={`calc(${maxY * scale} * 2em + 60vh + ${translateY}px)`}
+	margin_right={`calc(${maxX * scale} * 2em + 60vw + ${translateX}px)`}
 >
-	<Zoom bind:this={zoom} bind:currentScale={scale}>
+	<Zoom bind:this={zoom} bind:scale bind:translateX bind:translateY>
 		<div bind:this={gridDiv} />
 	</Zoom>
 </Scrollable4Dir>

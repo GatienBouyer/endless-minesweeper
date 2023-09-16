@@ -1,32 +1,32 @@
 <script lang="ts">
-	export let currentScale = 1;
+	export let scale = 1;
+	export let translateX = 0;
+	export let translateY = 0;
 
 	export function reset() {
 		node.style.transform = "";
-		currentScale = 1;
-		currentTx = 0;
-		currentTy = 0;
+		scale = 1;
+		translateX = 0;
+		translateY = 0;
 	}
 
 	let node: HTMLElement;
-	let currentTx = 0;
-	let currentTy = 0;
 	let previousTouch: undefined | number;
 
-	function scale(delta: number, clientX: number, clientY: number) {
+	function _scale(delta: number, clientX: number, clientY: number) {
 		let rec = node.getBoundingClientRect();
-		let previousScale = currentScale;
-		currentScale = currentScale * 1.001 ** delta;
+		let previousScale = scale;
+		scale = scale * 1.001 ** delta;
 		let x = (clientX - rec.x) / previousScale;
 		let y = (clientY - rec.y) / previousScale;
-		currentTx -= x * (currentScale - previousScale);
-		currentTy -= y * (currentScale - previousScale);
-		node.style.transform = `translate(${currentTx}px, ${currentTy}px) scale(${currentScale})`;
+		translateX -= x * (scale - previousScale);
+		translateY -= y * (scale - previousScale);
+		node.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 	}
 
 	function wheel(ev: WheelEvent) {
 		if (ev.ctrlKey) {
-			scale(-ev.deltaY, ev.clientX, ev.clientY);
+			_scale(-ev.deltaY, ev.clientX, ev.clientY);
 			ev.preventDefault();
 		}
 	}
@@ -44,7 +44,7 @@
 			const x = (ev.touches[0].clientX + ev.touches[1].clientX) / 2;
 			const y = (ev.touches[0].clientY + ev.touches[1].clientY) / 2;
 			if (previousTouch) {
-				scale((distanceSquared - previousTouch) / 100, x, y);
+				_scale((distanceSquared - previousTouch) / 100, x, y);
 				ev.preventDefault();
 			}
 			previousTouch = distanceSquared;
