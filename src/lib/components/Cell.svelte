@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { game } from "$lib/stores";
+	import Flag from "$lib/svg/Flag.svelte";
+	import Mine from "$lib/svg/Mine.svelte";
 
 	export let x: number;
 	export let y: number;
@@ -25,9 +27,9 @@
 	tabindex="0"
 >
 	{#if $game.isFlag(x, y)}
-		<img src="images/flag.svg" alt="flag" />
+		<Flag />
 	{:else if $game.isMine(x, y)}
-		<img src="images/mine.svg" alt="mine" />
+		<Mine />
 	{:else if $game.isDigit(x, y)}
 		<span>{$game.get(x, y)}</span>
 	{/if}
