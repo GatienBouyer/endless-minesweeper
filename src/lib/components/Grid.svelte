@@ -8,15 +8,23 @@
 		fixedHorizontal,
 	} from "$lib/actions/position_fixed_1_axis";
 	import Zoom from "./Zoom.svelte";
+	import Scrollable4Dir from "./Scrollable4Dir.svelte";
 
 	function clear() {
 		gridDiv.textContent = "";
-		gridDiv.style.top = "50%";
-		gridDiv.style.left = "50%";
+		zoom.reset();
+		scrollable4Dir.reset();
+		maxX = 0;
+		maxY = 0;
 	}
 
+	let hidden = true;
+	let zoom: Zoom;
+	let scrollable4Dir: Scrollable4Dir;
+	let gridDiv: HTMLDivElement;
 	let maxX = 0;
 	let maxY = 0;
+	let scale: number;
 
 	function createCell(x: number, y: number) {
 		new Cell({
@@ -36,8 +44,6 @@
 		}
 	}
 
-	let gridDiv: HTMLDivElement;
-
 	onMount(() => {
 		let _game = get(game);
 		_game.listenersExpand.push(createCell);
@@ -46,82 +52,55 @@
 		game.start();
 	});
 
-	function goUp() {
-		const value = parseInt(gridDiv.style.top);
-		const GO_UP_INCREMENT = 60;
-		const newValue = value + GO_UP_INCREMENT;
-		gridDiv.style.top = `${newValue}%`;
+	$: if (gridDiv && gridDiv.style) {
+		if (scale != 1) {
+			hidden = false;
+		}
+		gridDiv.style.color = scale < 0.5 ? "transparent" : "inherit";
+		gridDiv.style.fill = scale < 0.5 ? "transparent" : "inherit";
 	}
-
-	function goLeft() {
-		const value = parseInt(gridDiv.style.left);
-		const GO_LEFT_INCREMENT = 60;
-		const newValue = value + GO_LEFT_INCREMENT;
-		gridDiv.style.left = `${newValue}%`;
-	}
-
-	let hidden = true;
-	let zoomDiv: Zoom;
 </script>
 
-<button on:click={goUp} id="goUp" use:fixedHorizontal={{ top: "1em" }}>
+<button
+	on:click={scrollable4Dir.goUp}
+	use:fixedHorizontal={{ top: "1em" }}
+	style="left: 50%; translate: -50%; z-index: 99;"
+>
 	Go up
 </button>
-<button on:click={goLeft} id="goLeft" use:fixedVertical={{ left: "1em" }}>
+<button
+	on:click={scrollable4Dir.goLeft}
+	use:fixedVertical={{ left: "1em" }}
+	style="top: 50%; translate: 0 -50%; z-index: 99;"
+>
 	Go left
 </button>
 
 <button
 	on:click={() => {
-		zoomDiv.reset();
+		zoom.reset();
 		hidden = true;
 		gridDiv.style.color = "inherit";
 		gridDiv.style.fill = "inherit";
 	}}
-	id="resetZoom"
+	style="position: fixed; top: 1em; left: 1em; z-index: 99;"
 	class:hidden
 >
 	Reset zoom
 </button>
 
-<Zoom
-	callback={(scale) => {
-		hidden = false;
-		gridDiv.style.color = scale < 0.5 ? "transparent" : "inherit";
-		gridDiv.style.fill = scale < 0.5 ? "transparent" : "inherit";
-	}}
-	bind:this={zoomDiv}
+<Scrollable4Dir
+	bind:this={scrollable4Dir}
+	margin_bottom={`calc(${maxY} * 2em + 60vh)`}
+	margin_right={`calc(${maxX} * 2em + 60vw)`}
 >
-	<div bind:this={gridDiv} style="top: 50%; left: 50%;" />
-</Zoom>
+	<Zoom bind:this={zoom} bind:currentScale={scale}>
+		<div bind:this={gridDiv} />
+	</Zoom>
+</Scrollable4Dir>
 
 <style>
-	#goUp {
-		left: 50%;
-		translate: -50%;
-		z-index: 99;
-	}
-	#goLeft {
-		top: 50%;
-		translate: 0 -50%;
-		z-index: 99;
-	}
-	#resetZoom {
-		position: fixed;
-		top: 1em;
-		left: 1em;
-		z-index: 99;
-	}
-	div {
-		position: absolute;
-	}
-	div::after {
-		content: "";
-		position: absolute;
-		width: 2em;
-		height: 2em;
-		translate: -50% -50%;
-		top: calc(var(--max-y) * 2em + 60vh);
-		left: calc(var(--max-x) * 2em + 60vw);
+	.hidden {
+		display: none;
 	}
 </style>

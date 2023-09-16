@@ -1,7 +1,5 @@
 <script lang="ts">
-	export let callback:
-		| undefined
-		| ((newScale: number, prevScale: number) => void);
+	export let currentScale = 1;
 
 	export function reset() {
 		node.style.transform = "";
@@ -10,11 +8,10 @@
 		currentTy = 0;
 	}
 
-	let node: HTMLDivElement;
-	let currentScale = 1;
+	let node: HTMLElement;
 	let currentTx = 0;
 	let currentTy = 0;
-	let previous: undefined | number;
+	let previousTouch: undefined | number;
 
 	function scale(delta: number, clientX: number, clientY: number) {
 		let rec = node.getBoundingClientRect();
@@ -24,11 +21,7 @@
 		let y = (clientY - rec.y) / previousScale;
 		currentTx -= x * (currentScale - previousScale);
 		currentTy -= y * (currentScale - previousScale);
-
 		node.style.transform = `translate(${currentTx}px, ${currentTy}px) scale(${currentScale})`;
-		if (callback != undefined) {
-			callback(currentScale, previousScale);
-		}
 	}
 
 	function wheel(ev: WheelEvent) {
@@ -50,19 +43,19 @@
 			const distanceSquared = touchesToDist(ev.touches[0], ev.touches[1]);
 			const x = (ev.touches[0].clientX + ev.touches[1].clientX) / 2;
 			const y = (ev.touches[0].clientY + ev.touches[1].clientY) / 2;
-			if (previous) {
-				scale((distanceSquared - previous) / 100, x, y);
+			if (previousTouch) {
+				scale((distanceSquared - previousTouch) / 100, x, y);
 				ev.preventDefault();
 			}
-			previous = distanceSquared;
+			previousTouch = distanceSquared;
 		}
 	}
 
 	function touchStartEnd(ev: TouchEvent) {
 		if (ev.touches.length == 2) {
-			previous = touchesToDist(ev.touches[0], ev.touches[1]);
+			previousTouch = touchesToDist(ev.touches[0], ev.touches[1]);
 		} else {
-			previous = undefined;
+			previousTouch = undefined;
 		}
 	}
 </script>
