@@ -43,6 +43,20 @@ class GridMap {
 	clear(): void {
 		this.#map.clear();
 	}
+
+	toJSON(): object {
+		const array = Array.from(this.#map, ([name, value]) => ([name, value]));
+		return array;
+	}
+
+	fromJSON(value: unknown): boolean {
+		if (!Array.isArray(value)) {
+			return false
+		}
+		this.#map.clear();
+		this.#map = new Map(value);
+		return true;
+	}
 }
 
 export default GridMap;

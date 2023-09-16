@@ -6,31 +6,65 @@
 	export let x: number;
 	export let y: number;
 
-	function handleAction(e: KeyboardEvent | MouseEvent): void {
+	let longpress = false;
+	let presstimer: number | undefined = undefined;
+
+	function cancel() {
+		clearTimeout(presstimer);
+		presstimer = undefined;
+	}
+
+	function click() {
+		clearTimeout(presstimer);
+		presstimer = undefined;
+		if (longpress) {
+			return;
+		}
 		if ($game.isDigit(x, y)) {
 			game.autoReveal(x, y);
-		} else if (e.ctrlKey) {
-			game.revealCell(x, y);
 		} else {
 			game.toggleFlag(x, y);
 		}
 	}
+
+	function start(e: MouseEvent | TouchEvent) {
+		clearInterval(presstimer);
+		presstimer = undefined;
+		longpress = false;
+		if ("button" in e && e.button != 0) {
+			return;
+		}
+		if ("touches" in e && e.touches.length != 1) {
+			return;
+		}
+		presstimer = setTimeout(function () {
+			game.revealCell(x, y);
+			longpress = true;
+		}, 350);
+	}
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <span
 	class="cell"
 	class:revealed={$game.isDigit(x, y)}
 	style="translate: {x * 2 - 1}em {y * 2 - 1}em"
-	on:click={handleAction}
-	on:keydown={(e) => (e.key == " " ? handleAction(e) : null)}
+	on:click|preventDefault={click}
+	on:mousedown|preventDefault={start}
+	on:touchstart={start}
+	on:mouseout|preventDefault={cancel}
+	on:blur={cancel}
+	on:touchend={cancel}
+	on:touchcancel={cancel}
+	on:touchmove={cancel}
 	role="cell"
-	tabindex="0"
+	tabindex="-1"
 >
 	{#if $game.isFlag(x, y)}
 		<Flag />
 	{:else if $game.isMine(x, y)}
 		<Mine />
-	{:else if $game.isDigit(x, y)}
+	{:else if $game.isDigit(x, y) && $game.get(x, y) != 0}
 		<span>{$game.get(x, y)}</span>
 	{/if}
 </span>
@@ -44,6 +78,8 @@
 		align-items: center;
 		position: absolute;
 		cursor: pointer;
+		-webkit-user-select: none; /* Safari */
+		user-select: none;
 		background-color: darkgrey;
 		z-index: unset;
 		padding: 0.25em;
@@ -51,11 +87,5 @@
 	.cell.revealed {
 		background-color: lightgrey;
 		box-shadow: inset 0 0 0.125em 0 white;
-	}
-	.cell:not(.revealed)::after {
-		content: "";
-		position: absolute;
-		inset: 0;
-		translate: 60vw 60vh;
 	}
 </style>

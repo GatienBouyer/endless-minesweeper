@@ -9,18 +9,8 @@ const FLAG_MINE_HIDDEN = 13;
 const FLAG_UNDEFINED = 14;
 // UNEXPLORED: undefined
 
-interface DataStructure {
-	get(x: number, y: number): number | undefined,
-	set(x: number, y: number, value: number): void,
-	unset(x: number, y: number): void,
-	has(x: number, y: number): boolean,
-	forEachCell(callbackfn: (value: number, x: number, y: number) => void): void,
-	forNeighboors(x: number, y: number, callbackfn: (value: number | undefined, x: number, y: number) => void): void,
-	clear(): void,
-}
-
 class Game {
-	#grid: DataStructure
+	#grid: GridMap
 	listenersExpand: { (x: number, y: number): void }[]
 	listenersClear: { (): void }[]
 	difficulty: number /**< Between 0 and 1. 0 easy (no mines). 1 impossible (all mines). */
@@ -179,11 +169,16 @@ class Game {
 		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 	}
 
+	notifyExpandForAllCell(): void {
+		this.#grid.forEachCell((_, x, y) => this.notifyExpand(x, y));
+	}
+
 	notifyExpand(x: number, y: number): void {
 		for (const func of this.listenersExpand) {
 			func(x, y)
 		}
 	}
+
 	notifyClear(): void {
 		for (const func of this.listenersClear) {
 			func()
@@ -211,6 +206,40 @@ class Game {
 	restart(): void {
 		this.clean();
 		this.start();
+	}
+
+	toJSON(): object {
+		let grid = this.#grid.toJSON();
+		return {
+			"flagCount": this.flagCount,
+			"revealCount": this.revealCount,
+			"difficulty": this.difficulty,
+			"status": this.status,
+			"grid": grid,
+		};
+	}
+
+	fromJSON(value: unknown): boolean {
+		if (!(typeof value == "object" && value
+			&& "grid" in value
+			&& "flagCount" in value && typeof value.flagCount == 'number'
+			&& "revealCount" in value && typeof value.revealCount == 'number'
+			&& "difficulty" in value && typeof value.difficulty == 'number'
+			&& "status" in value && typeof value.status == 'string'
+			&& (value.status == "created" || value.status == "started" || value.status == "ended")
+		)) {
+			return false;
+		}
+		if (!this.#grid.fromJSON(value.grid)) {
+			return false;
+		};
+		this.flagCount = value.flagCount;
+		this.revealCount = value.revealCount;
+		this.difficulty = value.difficulty;
+		this.status = value.status;
+		this.notifyClear();
+		this.notifyExpandForAllCell();
+		return true
 	}
 }
 
