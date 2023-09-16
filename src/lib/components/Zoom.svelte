@@ -1,28 +1,20 @@
-export function zoom(
-	node: HTMLElement,
-	options?: {
-		callback?: (newScale: number, prevScale: number) => void,
-		getReset?: (reset: () => void) => void,
-	}
-) {
-	window.addEventListener("wheel", wheel, { passive: false });
-	window.addEventListener("touchmove", touchmove, { passive: false });
-	window.addEventListener("touchstart", touchStartEnd);
-	window.addEventListener("touchend", touchStartEnd);
+<script lang="ts">
+	export let callback:
+		| undefined
+		| ((newScale: number, prevScale: number) => void);
 
-	let currentScale = 1;
-	let currentTx = 0;
-	let currentTy = 0;
-
-	function reset() {
-		node.style.transform = ""
+	export function reset() {
+		node.style.transform = "";
 		currentScale = 1;
 		currentTx = 0;
 		currentTy = 0;
 	}
-	if (options?.getReset != undefined) {
-		options.getReset(reset);
-	}
+
+	let node: HTMLDivElement;
+	let currentScale = 1;
+	let currentTx = 0;
+	let currentTy = 0;
+	let previous: undefined | number;
 
 	function scale(delta: number, clientX: number, clientY: number) {
 		let rec = node.getBoundingClientRect();
@@ -30,12 +22,12 @@ export function zoom(
 		currentScale = currentScale * 1.001 ** delta;
 		let x = (clientX - rec.x) / previousScale;
 		let y = (clientY - rec.y) / previousScale;
-		currentTx -= (x * (currentScale - previousScale));
-		currentTy -= (y * (currentScale - previousScale));
+		currentTx -= x * (currentScale - previousScale);
+		currentTy -= y * (currentScale - previousScale);
 
 		node.style.transform = `translate(${currentTx}px, ${currentTy}px) scale(${currentScale})`;
-		if (options?.callback != undefined) {
-			options.callback(currentScale, previousScale);
+		if (callback != undefined) {
+			callback(currentScale, previousScale);
 		}
 	}
 
@@ -53,12 +45,11 @@ export function zoom(
 		return distanceSquared;
 	}
 
-	let previous: undefined | number;
 	function touchmove(ev: TouchEvent) {
 		if (ev.touches.length == 2) {
 			const distanceSquared = touchesToDist(ev.touches[0], ev.touches[1]);
-			const x = (ev.touches[0].clientX + ev.touches[1].clientX) / 2
-			const y = (ev.touches[0].clientY + ev.touches[1].clientY) / 2
+			const x = (ev.touches[0].clientX + ev.touches[1].clientX) / 2;
+			const y = (ev.touches[0].clientY + ev.touches[1].clientY) / 2;
 			if (previous) {
 				scale((distanceSquared - previous) / 100, x, y);
 				ev.preventDefault();
@@ -74,13 +65,15 @@ export function zoom(
 			previous = undefined;
 		}
 	}
+</script>
 
-	return {
-		destroy() {
-			window.removeEventListener("wheel", wheel);
-			window.removeEventListener("touchmove", touchmove);
-			window.removeEventListener("touchstart", touchStartEnd);
-			window.removeEventListener("touchend", touchStartEnd);
-		}
-	}
-}
+<svelte:window
+	on:wheel|nonpassive={wheel}
+	on:touchmove|nonpassive={touchmove}
+	on:touchstart={touchStartEnd}
+	on:touchend={touchStartEnd}
+/>
+
+<div bind:this={node}>
+	<slot />
+</div>

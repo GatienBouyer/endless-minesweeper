@@ -3,11 +3,11 @@
 	import { get } from "svelte/store";
 	import Cell from "./Cell.svelte";
 	import { game } from "$lib/stores";
-	import { zoom } from "$lib/actions/zoom";
 	import {
 		fixedVertical,
 		fixedHorizontal,
 	} from "$lib/actions/position_fixed_1_axis";
+	import Zoom from "./Zoom.svelte";
 
 	function clear() {
 		gridDiv.textContent = "";
@@ -61,7 +61,7 @@
 	}
 
 	let hidden = true;
-	let resetScale = () => {};
+	let zoomDiv: Zoom;
 </script>
 
 <button on:click={goUp} id="goUp" use:fixedHorizontal={{ top: "1em" }}>
@@ -73,7 +73,7 @@
 
 <button
 	on:click={() => {
-		resetScale();
+		zoomDiv.reset();
 		hidden = true;
 		gridDiv.style.color = "inherit";
 		gridDiv.style.fill = "inherit";
@@ -84,18 +84,16 @@
 	Reset zoom
 </button>
 
-<div
-	bind:this={gridDiv}
-	style="top: 50%; left: 50%;"
-	use:zoom={{
-		callback: (scale) => {
-			hidden = false;
-			gridDiv.style.color = scale < 0.5 ? "transparent" : "inherit";
-			gridDiv.style.fill = scale < 0.5 ? "transparent" : "inherit";
-		},
-		getReset: (reset) => (resetScale = reset),
+<Zoom
+	callback={(scale) => {
+		hidden = false;
+		gridDiv.style.color = scale < 0.5 ? "transparent" : "inherit";
+		gridDiv.style.fill = scale < 0.5 ? "transparent" : "inherit";
 	}}
-/>
+	bind:this={zoomDiv}
+>
+	<div bind:this={gridDiv} style="top: 50%; left: 50%;" />
+</Zoom>
 
 <style>
 	#goUp {
@@ -123,8 +121,6 @@
 		width: 2em;
 		height: 2em;
 		translate: -50% -50%;
-	}
-	div::after {
 		top: calc(var(--max-y) * 2em + 60vh);
 		left: calc(var(--max-x) * 2em + 60vw);
 	}
