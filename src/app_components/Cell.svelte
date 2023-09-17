@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { game } from "$lib/stores";
-	import Flag from "$lib/svg/Flag.svelte";
-	import Mine from "$lib/svg/Mine.svelte";
+	import { game } from "$stores";
+	import Flag from "$svg/Flag.svelte";
+	import Mine from "$svg/Mine.svelte";
 
 	export let x: number;
 	export let y: number;

@@ -13,7 +13,13 @@ const config = {
 			fallback: undefined,
 			precompress: false,
 			strict: true
-		})
+		}),
+		// Consult https://kit.svelte.dev/docs/configuration#alias
+		alias: {
+			'$svg': 'src/svg',
+			'$app_components': 'src/app_components',
+			'$stores': 'src/stores.ts',
+		},
 	},
 	paths: {
 		base: '.',

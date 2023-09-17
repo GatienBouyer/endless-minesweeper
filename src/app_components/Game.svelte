@@ -1,12 +1,13 @@
 <script lang="ts">
-	import Grid from "./Grid.svelte";
-	import { difficulty, game } from "$lib/stores";
+	import { onMount } from "svelte";
+	import { difficulty, game } from "$stores";
 	import {
 		difficulty_levels,
 		type StoryPart,
 	} from "$lib/minesweeper/difficulties";
-	import { onMount } from "svelte";
+	import Grid from "$app_components/Grid.svelte";
 
+	// TODO move story stuff to another file 
 	let dialog: HTMLDialogElement | null = null;
 	let nextPart = 0;
 	let story: StoryPart[] | undefined;

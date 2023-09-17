@@ -1,7 +1,7 @@
 <script lang="ts">
-	import PauseMenu from "$lib/components/PauseMenu.svelte";
-	import Game from "$lib/components/Game.svelte";
-	import KeyboardShorcut from "$lib/KeyboardShorcut.svelte";
+	import PauseMenu from "$app_components/PauseMenu.svelte";
+	import Game from "$app_components/Game.svelte";
+	import KeyboardShorcut from "$app_components/KeyboardShorcut.svelte";
 
 	let paused = false;
 </script>

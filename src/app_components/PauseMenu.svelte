@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { difficulty, game } from "$lib/stores";
+	import { difficulty, game } from "$stores";
 	import { difficulty_levels } from "$lib/minesweeper/difficulties";
 </script>
 

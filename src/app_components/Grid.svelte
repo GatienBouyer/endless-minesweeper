@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
-	import Cell from "./Cell.svelte";
-	import { game } from "$lib/stores";
+	import Cell from "$app_components/Cell.svelte";
+	import { game } from "$stores";
 	import {
 		fixedVertical,
 		fixedHorizontal,
 	} from "$lib/actions/position_fixed_1_axis";
-	import Zoom from "./Zoom.svelte";
-	import Scrollable4Dir from "./Scrollable4Dir.svelte";
+	import Zoom from "$lib/components/Zoom.svelte";
+	import Scrollable4Dir from "$lib/components/Scrollable4Dir.svelte";
 
 	function clear() {
 		gridDiv.textContent = "";

@@ -1,5 +1,5 @@
-import Game from './minesweeper/Game';
-import { difficulty_levels } from './minesweeper/difficulties';
+import Game from '$lib/minesweeper/Game';
+import { difficulty_levels } from '$lib/minesweeper/difficulties';
 import { writable } from 'svelte/store';
 
 const STORAGE_KEY = "game";

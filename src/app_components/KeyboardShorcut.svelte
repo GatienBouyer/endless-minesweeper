@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { game } from "./stores";
+	import { game } from "$stores";
 	export let setPaused: (state: boolean) => void;
 	export let paused: boolean;
 
