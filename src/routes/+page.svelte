@@ -1,18 +1,8 @@
-<script lang="ts">
-	import PauseMenu from "$app_components/PauseMenu.svelte";
+<script>
 	import Game from "$app_components/Game.svelte";
-	import KeyboardShorcut from "$app_components/KeyboardShorcut.svelte";
-
-	let paused = false;
 </script>
 
-<div style="display: {paused ? '' : 'none'};">
-	<PauseMenu on:click={() => (paused = !paused)} />
-</div>
-<div style="display: {paused ? 'none' : ''};">
-	<Game on:click={() => (paused = !paused)} />
-</div>
-<KeyboardShorcut {paused} setPaused={(state => paused = state)} />
+<Game />
 
 <footer>
 	<span>Gatien, 2023</span>
