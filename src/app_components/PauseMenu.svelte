@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { difficulty, game } from "$stores/game";
+	import storyMode from "$stores/story_mode";
 	import { difficulty_levels } from "$lib/minesweeper/difficulties";
 	export let paused: boolean;
 </script>
@@ -7,19 +8,25 @@
 <div id="pause">
 	<h1>Minesweeper</h1>
 	<p>Paused</p>
-	<button on:click={() => paused = !paused}>Play!</button>
+	<button on:click={() => (paused = !paused)}>Play!</button>
 	<button on:click={game.restart} on:click>New game</button>
-	<label>
-		Difficulty:
-		<select bind:value={$difficulty}>
-			{#each difficulty_levels as level}
-				<option value={level.value}>
-					{level.text}
-				</option>
-			{/each}
-		</select>
-	</label>
-	<div class="keybindings">
+	<div>
+		<label>
+			Difficulty
+			<select bind:value={$difficulty}>
+				{#each difficulty_levels as level}
+					<option value={level.value}>
+						{level.text}
+					</option>
+				{/each}
+			</select>
+		</label>
+		<label>
+			Story
+			<input type="checkbox" bind:checked={$storyMode} />
+		</label>
+	</div>
+	<div id="keybindings">
 		<label>
 			Pause / Unpause
 			<input type="button" value="Esc" disabled />
@@ -61,7 +68,9 @@
 		justify-content: space-between;
 		align-items: center;
 	}
-	input {
+
+	input,
+	select {
 		margin: 0.5em;
 	}
 

@@ -5,6 +5,7 @@
 	import StoryPopup from "$app_components/StoryPopup.svelte";
 	import PauseMenu from "$app_components/PauseMenu.svelte";
 	import KeyboardShortcut from "$app_components/KeyboardShortcut.svelte";
+	import storyMode from "$stores/story_mode";
 
 	let paused = false;
 </script>
@@ -12,21 +13,24 @@
 <div style="display: {paused ? '' : 'none'};">
 	<PauseMenu bind:paused />
 </div>
+
 <div style="display: {paused ? 'none' : ''};">
 	<Board />
+
+	{#if $game.status == "ended"}
+		<GameoverOverlay />
+	{/if}
+
+	<div id="stats">
+		<button on:click={() => (paused = !paused)}>Pause</button>
+		<span><span>{$game.flagCount}</span> mines marked</span>
+		<span><span>{$game.revealCount}</span> cells cleared</span>
+	</div>
+
+	{#if $storyMode}
+		<StoryPopup />
+	{/if}
 </div>
-
-{#if $game.status == "ended"}
-	<GameoverOverlay />
-{/if}
-
-<div id="stats">
-	<button on:click={() => (paused = !paused)}>Pause</button>
-	<span><span>{$game.flagCount}</span> mines marked</span>
-	<span><span>{$game.revealCount}</span> cells cleared</span>
-</div>
-
-<StoryPopup />
 
 <KeyboardShortcut bind:paused />
 
