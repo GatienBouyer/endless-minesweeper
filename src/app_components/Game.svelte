@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { game } from "$stores";
+	import { game } from "$stores/game";
 	import Board from "$app_components/Board.svelte";
 	import GameoverOverlay from "$app_components/GameoverOverlay.svelte";
 	import StoryPopup from "$app_components/StoryPopup.svelte";

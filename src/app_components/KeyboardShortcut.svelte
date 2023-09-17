@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { game } from "$stores";
+	import { game } from "$stores/game";
 	export let paused: boolean;
 
 	function checkShortcut(event: KeyboardEvent) {

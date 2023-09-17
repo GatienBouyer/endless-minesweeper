@@ -18,7 +18,7 @@ const config = {
 		alias: {
 			'$svg': 'src/svg',
 			'$app_components': 'src/app_components',
-			'$stores': 'src/stores.ts',
+			'$stores': 'src/stores',
 		},
 	},
 	paths: {

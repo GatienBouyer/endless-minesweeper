@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { game } from "$stores";
+	import { game } from "$stores/game";
 </script>
 
 <div id="game-over">

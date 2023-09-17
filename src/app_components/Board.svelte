@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { get } from "svelte/store";
 	import Cell from "$app_components/Cell.svelte";
-	import { game } from "$stores";
+	import { game } from "$stores/game";
 	import {
 		fixedVertical,
 		fixedHorizontal,

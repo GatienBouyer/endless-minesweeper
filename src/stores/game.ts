@@ -1,23 +1,23 @@
-import Game from '$lib/minesweeper/Game';
+import Minesweeper from '$lib/minesweeper/minesweeper';
 import { difficulty_levels } from '$lib/minesweeper/difficulties';
 import { writable } from 'svelte/store';
 
 const STORAGE_KEY = "game";
 
-function loadGame(game: Game): void {
+function loadGame(game: Minesweeper): void {
 	const value = window.localStorage.getItem(STORAGE_KEY);
 	if (value) {
 		game.fromJSON(JSON.parse(value));
 	}
 }
 
-function saveGame(game: Game): void {
+function saveGame(game: Minesweeper): void {
 	const value = JSON.stringify(game.toJSON());
 	window.localStorage.setItem(STORAGE_KEY, value);
 }
 
 function createGameStores() {
-	const game = new Game(difficulty_levels[2].value);
+	const game = new Minesweeper(difficulty_levels[2].value);
 	loadGame(game);
 	const gameSt = writable(game);
 	const difficultySt = writable(game.difficulty);

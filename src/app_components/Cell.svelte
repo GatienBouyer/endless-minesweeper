@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { game } from "$stores";
+	import { game } from "$stores/game";
 	import Flag from "$svg/Flag.svelte";
 	import Mine from "$svg/Mine.svelte";
 

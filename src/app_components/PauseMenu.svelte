@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { difficulty, game } from "$stores";
+	import { difficulty, game } from "$stores/game";
 	import { difficulty_levels } from "$lib/minesweeper/difficulties";
 	export let paused: boolean;
 </script>

@@ -1,4 +1,4 @@
-import GridMap from './GridMap';
+import BoardMap from './grid_map';
 
 // values: [[0 - 8]]
 const MINE = 9;
@@ -9,8 +9,8 @@ const FLAG_MINE_HIDDEN = 13;
 const FLAG_UNDEFINED = 14;
 // UNEXPLORED: undefined
 
-class Game {
-	#grid: GridMap
+class Minesweeper {
+	#board: BoardMap
 	listenersExpand: { (x: number, y: number): void }[]
 	listenersClear: { (): void }[]
 	difficulty: number /**< Between 0 and 1. 0 easy (no mines). 1 impossible (all mines). */
@@ -20,17 +20,17 @@ class Game {
 
 	constructor(difficulty: number) {
 		this.difficulty = difficulty;
-		this.#grid = new GridMap();
+		this.#board = new BoardMap();
 		this.listenersExpand = new Array();
 		this.listenersClear = new Array();
 	}
 
 	get(x: number, y: number): number | undefined {
-		return this.#grid.get(x, y);
+		return this.#board.get(x, y);
 	}
 
 	has(x: number, y: number): boolean {
-		return this.#grid.has(x, y);
+		return this.#board.has(x, y);
 	}
 
 	static is_flag(cell_value: number | undefined): boolean {
@@ -39,7 +39,7 @@ class Game {
 	}
 
 	isFlag(x: number, y: number): boolean {
-		return Game.is_flag(this.#grid.get(x, y));
+		return Minesweeper.is_flag(this.#board.get(x, y));
 	}
 
 	static is_digit(cell_value: number | undefined): boolean {
@@ -48,7 +48,7 @@ class Game {
 	}
 
 	isDigit(x: number, y: number): boolean {
-		return Game.is_digit(this.#grid.get(x, y));
+		return Minesweeper.is_digit(this.#board.get(x, y));
 	}
 
 	static is_mine(cell_value: number | undefined): boolean {
@@ -56,29 +56,29 @@ class Game {
 	}
 
 	isMine(x: number, y: number): boolean {
-		return Game.is_mine(this.#grid.get(x, y));
+		return Minesweeper.is_mine(this.#board.get(x, y));
 	}
 
 	toggleFlag(x: number, y: number): void {
-		const value = this.#grid.get(x, y);
+		const value = this.#board.get(x, y);
 		if (value == FLAG_UNDEFINED) {
 			this.flagCount -= 1;
-			this.#grid.unset(x, y);
+			this.#board.unset(x, y);
 		} else if (value == FLAG_MINE_HIDDEN) {
 			this.flagCount -= 1;
-			this.#grid.set(x, y, MINE_HIDDEN);
+			this.#board.set(x, y, MINE_HIDDEN);
 		} else if (value == FLAG_NOT_A_MINE) {
 			this.flagCount -= 1;
-			this.#grid.set(x, y, NOT_A_MINE);
+			this.#board.set(x, y, NOT_A_MINE);
 		} else if (value == undefined) {
 			this.flagCount += 1;
-			this.#grid.set(x, y, FLAG_UNDEFINED);
+			this.#board.set(x, y, FLAG_UNDEFINED);
 		} else if (value == MINE_HIDDEN) {
 			this.flagCount += 1;
-			this.#grid.set(x, y, FLAG_MINE_HIDDEN);
+			this.#board.set(x, y, FLAG_MINE_HIDDEN);
 		} else if (value == NOT_A_MINE) {
 			this.flagCount += 1;
-			this.#grid.set(x, y, FLAG_NOT_A_MINE);
+			this.#board.set(x, y, FLAG_NOT_A_MINE);
 		}
 	}
 
@@ -87,12 +87,12 @@ class Game {
 	}
 
 	revealCell(x: number, y: number): void {
-		const value = this.#grid.get(x, y);
+		const value = this.#board.get(x, y);
 		if (value == undefined) {
 			if (this.status == "created") {
-				this.#grid.set(x, y, NOT_A_MINE);
+				this.#board.set(x, y, NOT_A_MINE);
 			} else {
-				this.#grid.set(x, y, MINE_HIDDEN);
+				this.#board.set(x, y, MINE_HIDDEN);
 			}
 			this.status = "started";
 			this.notifyExpand(x, y);
@@ -108,33 +108,33 @@ class Game {
 
 	#setNumber(x: number, y: number): void {
 		let count = 0;
-		this.#grid.forNeighboors(x, y, (value, nx, ny) => {
+		this.#board.forNeighboors(x, y, (value, nx, ny) => {
 			if (value == undefined) {
 				const new_value = this.#setMine();
-				this.#grid.set(nx, ny, new_value);
+				this.#board.set(nx, ny, new_value);
 				this.notifyExpand(nx, ny);
 				if (new_value == MINE_HIDDEN) {
 					count += 1;
 				}
 			} else if (value == FLAG_UNDEFINED) {
 				if (this.#setMine() == MINE_HIDDEN) {
-					this.#grid.set(nx, ny, FLAG_MINE_HIDDEN);
+					this.#board.set(nx, ny, FLAG_MINE_HIDDEN);
 					count += 1;
 				} else {
-					this.#grid.set(nx, ny, FLAG_NOT_A_MINE);
+					this.#board.set(nx, ny, FLAG_NOT_A_MINE);
 				}
 				this.notifyExpand(nx, ny);
 			} else if (value == MINE_HIDDEN || value == FLAG_MINE_HIDDEN || value == MINE) {
 				count += 1;
 			}
 		});
-		this.#grid.set(x, y, count);
+		this.#board.set(x, y, count);
 		if (this.isFlag(x, y)) {
 			this.flagCount -= 1;
 		}
 		this.revealCount += 1;
 		if (count == 0) {
-			this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
+			this.#board.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 		}
 	}
 
@@ -143,34 +143,34 @@ class Game {
 		if (this.isFlag(x, y)) {
 			this.flagCount -= 1;
 		}
-		this.#grid.set(x, y, MINE);
-		this.#grid.forEachCell((value, x, y) => {
+		this.#board.set(x, y, MINE);
+		this.#board.forEachCell((value, x, y) => {
 			if (value == FLAG_MINE_HIDDEN) {
 				this.flagCount -= 1;
-				this.#grid.set(x, y, MINE);
+				this.#board.set(x, y, MINE);
 			} else if (value == MINE_HIDDEN) {
-				this.#grid.set(x, y, MINE);
+				this.#board.set(x, y, MINE);
 			}
 		});
 	}
 
 	autoReveal(x: number, y: number): void {
-		const value = this.#grid.get(x, y);
-		if (!Game.is_digit(value)) {
+		const value = this.#board.get(x, y);
+		if (!Minesweeper.is_digit(value)) {
 			return;
 		}
 		let count = 0;
-		this.#grid.forNeighboors(x, y, (value) => {
-			if (Game.is_flag(value)) count += 1
+		this.#board.forNeighboors(x, y, (value) => {
+			if (Minesweeper.is_flag(value)) count += 1
 		})
 		if (count != value) {
 			return;
 		}
-		this.#grid.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
+		this.#board.forNeighboors(x, y, (_, nx, ny) => this.revealCell(nx, ny));
 	}
 
 	notifyExpandForAllCell(): void {
-		this.#grid.forEachCell((_, x, y) => this.notifyExpand(x, y));
+		this.#board.forEachCell((_, x, y) => this.notifyExpand(x, y));
 	}
 
 	notifyExpand(x: number, y: number): void {
@@ -188,7 +188,7 @@ class Game {
 	start(): void {
 		let n = 0;
 		const MAX_TRY = 100;
-		while (this.#grid.get(0, 0) != 0 && n < MAX_TRY) {
+		while (this.#board.get(0, 0) != 0 && n < MAX_TRY) {
 			this.clean();
 			this.revealCell(0, 0);
 			n += 1;
@@ -197,7 +197,7 @@ class Game {
 
 	clean(): void {
 		this.notifyClear();
-		this.#grid.clear();
+		this.#board.clear();
 		this.flagCount = 0;
 		this.revealCount = 0;
 		this.status = "created";
@@ -209,7 +209,7 @@ class Game {
 	}
 
 	toJSON(): object {
-		let grid = this.#grid.toJSON();
+		let grid = this.#board.toJSON();
 		return {
 			"flagCount": this.flagCount,
 			"revealCount": this.revealCount,
@@ -230,7 +230,7 @@ class Game {
 		)) {
 			return false;
 		}
-		if (!this.#grid.fromJSON(value.grid)) {
+		if (!this.#board.fromJSON(value.grid)) {
 			return false;
 		};
 		this.flagCount = value.flagCount;
@@ -243,4 +243,4 @@ class Game {
 	}
 }
 
-export default Game;
+export default Minesweeper;
