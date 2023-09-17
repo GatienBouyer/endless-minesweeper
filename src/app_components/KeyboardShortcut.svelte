@@ -1,15 +1,13 @@
 <script lang="ts">
 	import { game } from "$stores";
-	export let setPaused: (state: boolean) => void;
 	export let paused: boolean;
 
 	function checkShortcut(event: KeyboardEvent) {
 		if (event.key == "n") {
 			game.restart();
-			setPaused(false);
+			paused = false;
 		} else if (event.key == "Escape") {
-			setPaused(!paused);
-			console.log("Escape");
+			paused = !paused;
 		}
 	}
 </script>

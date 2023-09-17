@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { difficulty, game } from "$stores";
 	import { difficulty_levels } from "$lib/minesweeper/difficulties";
+	export let paused: boolean;
 </script>
 
 <div id="pause">
 	<h1>Minesweeper</h1>
 	<p>Paused</p>
-	<button on:click>Play!</button>
+	<button on:click={() => paused = !paused}>Play!</button>
 	<button on:click={game.restart} on:click>New game</button>
 	<label>
 		Difficulty:

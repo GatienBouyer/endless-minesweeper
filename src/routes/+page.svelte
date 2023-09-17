@@ -1,8 +1,8 @@
 <script>
-	import Game from "$app_components/Game.svelte";
+	import Main from "$app_components/Main.svelte";
 </script>
 
-<Game />
+<Main />
 
 <footer>
 	<span>Gatien, 2023</span>

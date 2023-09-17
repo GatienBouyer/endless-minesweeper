@@ -1,19 +1,19 @@
 <script lang="ts">
 	import { game } from "$stores";
-	import Grid from "$app_components/Grid.svelte";
+	import Board from "$app_components/Board.svelte";
 	import GameoverOverlay from "$app_components/GameoverOverlay.svelte";
 	import StoryPopup from "$app_components/StoryPopup.svelte";
 	import PauseMenu from "$app_components/PauseMenu.svelte";
-	import KeyboardShorcut from "$app_components/KeyboardShorcut.svelte";
+	import KeyboardShortcut from "$app_components/KeyboardShortcut.svelte";
 
 	let paused = false;
 </script>
 
 <div style="display: {paused ? '' : 'none'};">
-	<PauseMenu on:click={() => (paused = !paused)} />
+	<PauseMenu bind:paused />
 </div>
 <div style="display: {paused ? 'none' : ''};">
-	<Grid />
+	<Board />
 </div>
 
 {#if $game.status == "ended"}
@@ -28,7 +28,7 @@
 
 <StoryPopup />
 
-<KeyboardShorcut {paused} setPaused={(state => paused = state)} />
+<KeyboardShortcut bind:paused />
 
 <style>
 	#stats {
