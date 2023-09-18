@@ -13,7 +13,7 @@
 	<div>
 		<label>
 			Difficulty
-			<select bind:value={$difficulty}>
+			<select bind:value={$difficulty} name="difficulty">
 				{#each difficulty_levels as level}
 					<option value={level.value}>
 						{level.text}
@@ -23,7 +23,7 @@
 		</label>
 		<label>
 			Story
-			<input type="checkbox" bind:checked={$storyMode} />
+			<input type="checkbox" bind:checked={$storyMode} name="enable story"/>
 		</label>
 	</div>
 	<div id="keybindings">
