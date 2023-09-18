@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 	import { get } from "svelte/store";
 	import Cell from "$app_components/Cell.svelte";
 	import { game } from "$stores/game";
@@ -18,7 +18,7 @@
 		maxY = 0;
 	}
 
-	let hidden = true;
+	let hideResetZoom = true;
 	let zoom: Zoom;
 	let scrollable4Dir: Scrollable4Dir;
 	let gridDiv: HTMLDivElement;
@@ -45,33 +45,45 @@
 	}
 
 	onMount(() => {
-		let _game = get(game);
+		const _game = get(game);
 		_game.listenersExpand.push(createCell);
 		_game.listenersClear.push(clear);
 		_game.notifyExpandForAllCell();
 		game.start();
 	});
 
+	onDestroy(() => {
+		const _game = get(game);
+		const indexExpand = _game.listenersExpand.indexOf(createCell);
+		if (indexExpand != -1) {
+			_game.listenersExpand.splice(indexExpand, 1);
+		}
+		const indexClear = _game.listenersClear.indexOf(clear);
+		if (indexClear != -1) {
+			_game.listenersClear.splice(indexClear, 1);
+		}
+	});
+
 	$: if (gridDiv && gridDiv.style) {
 		if (scale != 1) {
-			hidden = false;
+			hideResetZoom = false;
 		}
-		gridDiv.style.color = scale < 0.5 ? "transparent" : "inherit";
-		gridDiv.style.fill = scale < 0.5 ? "transparent" : "inherit";
+		gridDiv.style.color = gridDiv.style.fill =
+			scale < 0.5 ? "transparent" : "inherit";
 	}
 </script>
 
 <button
 	on:click={scrollable4Dir.goUp}
 	use:fixedHorizontal={{ top: "1em" }}
-	style="left: 50%; translate: -50%; z-index: 99;"
+	style="left: 50%; translate: -50%;"
 >
 	Go up
 </button>
 <button
 	on:click={scrollable4Dir.goLeft}
 	use:fixedVertical={{ left: "1em" }}
-	style="top: 50%; translate: 0 -50%; z-index: 99;"
+	style="top: 50%; translate: 0 -50%;"
 >
 	Go left
 </button>
@@ -79,12 +91,12 @@
 <button
 	on:click={() => {
 		zoom.reset();
-		hidden = true;
+		hideResetZoom = true;
 		gridDiv.style.color = "inherit";
 		gridDiv.style.fill = "inherit";
 	}}
-	style="position: fixed; top: 1em; left: 1em; z-index: 99;"
-	class:hidden
+	style="top: 1em; left: 1em;"
+	style:display={hideResetZoom ? "none" : ""}
 >
 	Reset zoom
 </button>
@@ -100,7 +112,8 @@
 </Scrollable4Dir>
 
 <style>
-	.hidden {
-		display: none;
+	button {
+		position: fixed;
+		z-index: 99;
 	}
 </style>
