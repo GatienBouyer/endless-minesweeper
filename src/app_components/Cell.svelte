@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { longclick as longClick } from "$lib/actions/long_click";
 	import { game } from "$stores/game";
 	import Flag from "$svg/Flag.svelte";
 	import Mine from "$svg/Mine.svelte";
@@ -6,22 +7,7 @@
 	export let x: number;
 	export let y: number;
 
-	let longpress = false;
-	let presstimer: number | undefined = undefined;
-	let previousTouch: Touch | undefined = undefined;
-
-	function cancel() {
-		clearTimeout(presstimer);
-		presstimer = undefined;
-		previousTouch = undefined;
-	}
-
-	function click() {
-		clearTimeout(presstimer);
-		presstimer = undefined;
-		if (longpress) {
-			return;
-		}
+	function onShortClick() {
 		if ($game.isDigit(x, y)) {
 			game.autoReveal(x, y);
 		} else {
@@ -29,23 +15,8 @@
 		}
 	}
 
-	function start(e: MouseEvent | TouchEvent) {
-		clearInterval(presstimer);
-		presstimer = undefined;
-		longpress = false;
-		if ("button" in e && e.button != 0) {
-			return;
-		}
-		if ("touches" in e && e.touches.length != 1) {
-			return;
-		}
-		if ("touches" in e) {
-			previousTouch = e.touches[0];
-		}
-		presstimer = setTimeout(function () {
-			game.revealCell(x, y);
-			longpress = true;
-		}, 350);
+	function onLongClick() {
+		game.revealCell(x, y);
 	}
 </script>
 
@@ -54,27 +25,7 @@
 	class="cell"
 	class:revealed={$game.isDigit(x, y)}
 	style="translate: {x * 2 - 1}em {y * 2 - 1}em"
-	on:mousedown|preventDefault={start}
-	on:mouseup={click}
-	on:mouseout={cancel}
-	on:mouseleave={cancel}
-	on:mousemove={cancel}
-	on:touchstart|preventDefault={start}
-	on:touchend={click}
-	on:touchcancel={cancel}
-	on:touchmove={(ev) => {
-		// Mobile triggers move event for too small movement (except FirefoxForAndroid)
-		if (
-			previousTouch &&
-			Math.hypot(
-				previousTouch.clientX - ev.touches[0].clientX,
-				previousTouch.clientY - ev.touches[0].clientY
-			) > 10
-		) {
-			cancel();
-		}
-	}}
-	on:blur={cancel}
+	use:longClick={{ onLong: onLongClick, onShort: onShortClick }}
 	role="cell"
 	tabindex="-1"
 >
