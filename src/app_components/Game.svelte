@@ -38,11 +38,11 @@
     });
 </script>
 
-<div style="display: {paused ? 'unset' : 'none'};">
+<div class:hidden={!paused}>
     <PauseMenu bind:paused />
 </div>
 
-<div style="display: {paused ? 'none' : 'unset'};">
+<div class:hidden={paused}>
     <Board />
 
     {#if status == "ended"}

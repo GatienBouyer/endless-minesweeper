@@ -118,7 +118,7 @@
         gridDiv.style.fill = "inherit";
     }}
     style="top: 1em; left: 1em;"
-    style:display={hideResetZoom ? "none" : ""}
+    class:hidden={hideResetZoom}
 >
     Reset zoom
 </button>
