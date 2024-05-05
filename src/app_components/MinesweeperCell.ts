@@ -39,7 +39,7 @@ export default class MinesweeperCell extends HTMLElement {
     connectedCallback() {
         // https://stackoverflow.com/questions/43836886/failed-to-construct-customelement-error-when-javascript-file-is-placed-in-head
         this.tabIndex = -1;
-        this.style.translate = `${this.x * 2 - 1}em ${this.y * 2 - 1}em`;
+        this.style.translate = `${this.x * 2 - 0.75}em ${this.y * 2 - 0.75}em`;
     }
 
     render(): void {
