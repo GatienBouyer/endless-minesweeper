@@ -28,7 +28,7 @@
     onMount(() => {
         game.listenersRevealCount.push(updateRevealCount);
         game.listenersFlagCount.push(updateFlagCount);
-        game.listenersStatus.push(updateFlagCount);
+        game.listenersStatus.push(updateStatus);
     });
 
     onDestroy(() => {
