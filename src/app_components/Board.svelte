@@ -1,10 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { game, gameStorage } from "$states/game.svelte";
-    import { fixedVertical, fixedHorizontal } from "$lib/actions/position_fixed_1_axis";
     import { longclick as longClick } from "$lib/actions/long_click";
-    import Zoom from "$lib/components/Zoom.svelte";
-    import Scrollable4Dir from "$lib/components/Scrollable4Dir.svelte";
+    import Zoom from "$app_components/Zoom.svelte";
+    import Scrollable4Dir from "$app_components/Scrollable4Dir.svelte";
     import MinesweeperCell from "$app_components/MinesweeperCell";
     import removeItem from "$lib/remove_item";
 
@@ -19,7 +18,6 @@
     let zoom: Zoom;
     let scrollable4Dir: Scrollable4Dir;
     let gridDiv: HTMLDivElement;
-    let hideResetZoom = $state(true);
     let maxX = $state(0);
     let maxY = $state(0);
     let scale: number = $state(1);
@@ -84,44 +82,7 @@
             removeItem(game.listenersUpdate, updateCell);
         };
     });
-
-    $effect(() => {
-        if (gridDiv.style) {
-            if (scale != 1) {
-                hideResetZoom = false;
-            }
-            gridDiv.style.setProperty("--detailsDisplay", scale < 0.5 ? "None" : "");
-        }
-    });
 </script>
-
-<button
-    onclick={() => scrollable4Dir.goUp()}
-    use:fixedHorizontal={{ top: "1em" }}
-    style="left: 50%; translate: -50%;"
->
-    Go up
-</button>
-<button
-    onclick={() => scrollable4Dir.goLeft()}
-    use:fixedVertical={{ left: "1em" }}
-    style="top: 50%; translate: 0 -50%;"
->
-    Go left
-</button>
-
-<button
-    onclick={() => {
-        zoom.reset();
-        hideResetZoom = true;
-        gridDiv.style.color = "inherit";
-        gridDiv.style.fill = "inherit";
-    }}
-    style="top: 1em; left: 1em;"
-    class:hidden={hideResetZoom}
->
-    Reset zoom
-</button>
 
 <Scrollable4Dir
     bind:this={scrollable4Dir}
@@ -130,15 +91,9 @@
 >
     <Zoom bind:this={zoom} bind:scale bind:translateX bind:translateY>
         <div
+            style:--detailsDisplay={scale < 0.5 ? "none" : "unset"}
             bind:this={gridDiv}
             use:longClick={{ onLong: onLongClick, onShort: onShortClick }}
         ></div>
     </Zoom>
 </Scrollable4Dir>
-
-<style>
-    button {
-        position: fixed;
-        z-index: 99;
-    }
-</style>

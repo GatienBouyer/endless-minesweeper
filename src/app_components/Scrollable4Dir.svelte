@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import { fixedVertical, fixedHorizontal } from "$lib/actions/position_fixed_1_axis";
 
     let {
         margin_bottom = "",
@@ -33,6 +34,13 @@
     let node: HTMLElement;
 </script>
 
+<button onclick={goUp} use:fixedHorizontal={{ top: "1em" }} style="left: 50%; translate: -50%;">
+    Go up
+</button>
+<button onclick={goLeft} use:fixedVertical={{ left: "1em" }} style="top: 50%; translate: 0 -50%;">
+    Go left
+</button>
+
 <div
     bind:this={node}
     style="position: absolute; top:50%; left:50%;"
@@ -43,6 +51,10 @@
 </div>
 
 <style>
+    button {
+        position: fixed;
+        z-index: 99;
+    }
     div {
         transition: all 500ms;
     }

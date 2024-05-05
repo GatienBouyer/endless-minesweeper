@@ -82,6 +82,15 @@
     });
 </script>
 
+<button onclick={reset} style="top: 1em; left: 1em;" class:hidden={scale == 1}> Reset zoom </button>
+
 <div bind:this={node}>
     {@render children()}
 </div>
+
+<style>
+    button {
+        position: fixed;
+        z-index: 99;
+    }
+</style>
