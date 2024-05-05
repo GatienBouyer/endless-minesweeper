@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { game } from "$states/game.svelte";
     import { difficulty_levels, type StoryPart } from "$lib/minesweeper/difficulties";
+    import removeItem from "$lib/remove_item";
 
     let dialog: HTMLDialogElement;
     let storyStep = $state(0);
@@ -11,7 +12,6 @@
         storyStep = 0;
         storyParts = difficulty_levels.find((d) => d.value == game.difficulty)?.story;
     }
-    resetStoryStep();
 
     function checkStepPassing() {
         if (storyParts) {
@@ -30,18 +30,12 @@
             storyStep += 1;
             checkStepPassing();
         });
+        resetStoryStep();
         checkStepPassing();
-    });
-
-    onDestroy(() => {
-        const indexClear = game.listenersClear.indexOf(resetStoryStep);
-        if (indexClear != -1) {
-            game.listenersClear.splice(indexClear, 1);
-        }
-        const indexReveal = game.listenersRevealCount.indexOf(checkStepPassing);
-        if (indexReveal != -1) {
-            game.listenersRevealCount.splice(indexReveal, 1);
-        }
+        return () => {
+            removeItem(game.listenersClear, resetStoryStep);
+            removeItem(game.listenersRevealCount, checkStepPassing);
+        };
     });
 </script>
 

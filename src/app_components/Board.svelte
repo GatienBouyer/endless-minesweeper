@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { game, gameStorage } from "$states/game.svelte";
     import { fixedVertical, fixedHorizontal } from "$lib/actions/position_fixed_1_axis";
     import { longclick as longClick } from "$lib/actions/long_click";
     import Zoom from "$lib/components/Zoom.svelte";
     import Scrollable4Dir from "$lib/components/Scrollable4Dir.svelte";
     import MinesweeperCell from "$app_components/MinesweeperCell";
+    import removeItem from "$lib/remove_item";
 
     function clear() {
         gridDiv.textContent = "";
@@ -77,25 +78,15 @@
         game.listenersClear.push(clear);
         game.listenersUpdate.push(updateCell);
         game.start();
-    });
-
-    onDestroy(() => {
-        const indexExpand = game.listenersExpand.indexOf(createCell);
-        if (indexExpand != -1) {
-            game.listenersExpand.splice(indexExpand, 1);
-        }
-        const indexClear = game.listenersClear.indexOf(clear);
-        if (indexClear != -1) {
-            game.listenersClear.splice(indexClear, 1);
-        }
-        const indexUpdate = game.listenersUpdate.indexOf(updateCell);
-        if (indexUpdate != -1) {
-            game.listenersUpdate.splice(indexUpdate, 1);
-        }
+        return () => {
+            removeItem(game.listenersExpand, createCell);
+            removeItem(game.listenersClear, clear);
+            removeItem(game.listenersUpdate, updateCell);
+        };
     });
 
     $effect(() => {
-        if (gridDiv && gridDiv.style) {
+        if (gridDiv.style) {
             if (scale != 1) {
                 hideResetZoom = false;
             }

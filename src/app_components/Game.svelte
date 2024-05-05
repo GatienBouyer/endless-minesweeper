@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { game } from "$states/game.svelte";
     import Board from "$app_components/Board.svelte";
     import GameoverOverlay from "$app_components/GameoverOverlay.svelte";
@@ -7,6 +7,7 @@
     import PauseMenu from "$app_components/PauseMenu.svelte";
     import KeyboardShortcut from "$app_components/KeyboardShortcut.svelte";
     import storyMode from "$states/story_mode.svelte";
+    import removeItem from "$lib/remove_item";
 
     let paused = $state(false);
     let revealCount = $state(game.revealCount);
@@ -29,21 +30,11 @@
         game.listenersRevealCount.push(updateRevealCount);
         game.listenersFlagCount.push(updateFlagCount);
         game.listenersStatus.push(updateStatus);
-    });
-
-    onDestroy(() => {
-        const indexReveal = game.listenersRevealCount.indexOf(updateRevealCount);
-        if (indexReveal != -1) {
-            game.listenersRevealCount.splice(indexReveal, 1);
-        }
-        const indexFlag = game.listenersFlagCount.indexOf(updateFlagCount);
-        if (indexFlag != -1) {
-            game.listenersFlagCount.splice(indexFlag, 1);
-        }
-        const indexStatus = game.listenersStatus.indexOf(updateStatus);
-        if (indexStatus != -1) {
-            game.listenersStatus.splice(indexStatus, 1);
-        }
+        return () => {
+            removeItem(game.listenersRevealCount, updateRevealCount);
+            removeItem(game.listenersFlagCount, updateFlagCount);
+            removeItem(game.listenersStatus, updateStatus);
+        };
     });
 </script>
 
