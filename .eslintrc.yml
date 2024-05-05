@@ -1,6 +1,5 @@
 env:
-    es2021: true
-    node: true
+    es2022: true
     browser: true
 extends:
     - eslint:recommended
@@ -21,4 +20,3 @@ plugins:
     - "@typescript-eslint"
 rules:
     curly: error
-    svelte/valid-compile: off
